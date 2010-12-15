@@ -53,7 +53,6 @@ namespace ContraCrack.Transformers
                 {
                     foreach (MethodDefinition method in type.Methods)
                     {
-
                         if (method.HasBody && !method.IsAbstract
                             && !method.IsConstructor
                             && method.ReturnType.ReturnType.FullName.Contains("String") 
@@ -80,6 +79,7 @@ namespace ContraCrack.Transformers
                                 }
                                 if (method.Body.Instructions[0].Operand.ToString() != "authentication.bottingnation.com")
                                 {
+                                    logger.Log("Couldn't find auth string in method \"" + method.Name + "\"");
                                     //this will only work on assemblies without string obfuscation :( will add manual override later
                                     continue;
                                 }
