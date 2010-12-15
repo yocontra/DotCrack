@@ -56,11 +56,15 @@ namespace ContraCrack
                 {
 
                     case "ExploitN Cracker":
-                        trans = new ENCracker(fileSelectTextBox.Text);
+                        trans = new Transformers.ENCracker(fileSelectTextBox.Text);
+                        break;
+
+                    case "BottingNation Cracker":
+                        trans = new Transformers.BNCracker(fileSelectTextBox.Text);
                         break;
 
                     case "RSCBTagger":
-                        trans = new RSCBTagger(fileSelectTextBox.Text);
+                        trans = new Transformers.RSCBTagger(fileSelectTextBox.Text);
                         break;
 
                     default:

@@ -51,8 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogHandler.cs" />
-    <Compile Include="RSCBTagger.cs" />
-    <Compile Include="ENCracker.cs" />
+    <Compile Include="Transformers\BNCracker.cs" />
+    <Compile Include="Transformers\RSCBTagger.cs" />
+    <Compile Include="Transformers\ENCracker.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
