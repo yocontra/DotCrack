@@ -1,0 +1,10 @@
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.MainForm.resources
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resources.resources
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\bin\Debug\ContraCrack.pdb
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
+c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\bin\Debug\Mono.Cecil.dll
