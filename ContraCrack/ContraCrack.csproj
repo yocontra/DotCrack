@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogHandler.cs" />
     <Compile Include="RSCBTagger.cs" />
     <Compile Include="ENCracker.cs" />
     <Compile Include="MainForm.cs">

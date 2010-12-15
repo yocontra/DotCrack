@@ -11,18 +11,21 @@ namespace ContraCrack
 {
     class ENCracker : Transformer
     {
+        LogHandler logger = new LogHandler("ENCracker");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
         bool flag = false;
+
         public ENCracker(string fileLoc)
         {
-            ((MainForm)MainForm.ActiveForm).log("");
+            logger.Log("ENCracker Started!");
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
-        } 
+        }
         public void load()
         {
+            logger.Log("Loading Assembly...");
             if (flag) return;
             try
             {
@@ -34,6 +37,7 @@ namespace ContraCrack
                 flag = true;
                 return;
             }
+            logger.Log("Removing Strongname Key...");
             assembly.Name.PublicKey = new byte[0];
             assembly.Name.PublicKeyToken = new byte[0];
             assembly.Name.Flags = AssemblyFlags.SideBySideCompatible;
@@ -41,6 +45,7 @@ namespace ContraCrack
         public void transform()
         {
             if (flag) return;
+            logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
             {
                 if (type.Name != "<Module>")
@@ -58,6 +63,7 @@ namespace ContraCrack
                             DialogResult tz = MessageBox.Show("Method \"" + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
                             {
+                                logger.Log("Modifying method \"" + method.Name + "\"");
                                 CilWorker worker;
                                 try
                                 {
@@ -65,7 +71,7 @@ namespace ContraCrack
                                 }
                                 catch (Exception e)
                                 {
-                                    MessageBox.Show("Issue reading MSIL. Assembly might be obfuscated.");
+                                    MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
                                     flag = true;
                                     return;
                                 }
@@ -97,6 +103,7 @@ namespace ContraCrack
         public void save()
         {
             if (flag) return;
+            logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);
         }
     }

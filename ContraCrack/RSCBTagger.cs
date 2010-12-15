@@ -11,24 +11,41 @@ namespace ContraCrack
 {
     class RSCBTagger : Transformer
     {
+        LogHandler logger = new LogHandler("RSCBTagger");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
+        bool flag = false;
 
         public RSCBTagger(string fileLoc)
         {
+            logger.Log("RSCBTagger Started!");
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-tagged.exe");
         }
         public void load()
         {
-            assembly = AssemblyFactory.GetAssembly(assemblyLocation);
+            logger.Log("Loading Assembly...");
+            if (flag) return;
+            try
+            {
+                assembly = AssemblyFactory.GetAssembly(assemblyLocation);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Error loading assembly.");
+                flag = true;
+                return;
+            }
+            logger.Log("Removing Strongname Key...");
             assembly.Name.PublicKey = new byte[0];
             assembly.Name.PublicKeyToken = new byte[0];
             assembly.Name.Flags = AssemblyFlags.SideBySideCompatible;
         }
         public void transform()
         {
+            if (flag) return;
+            logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
             {
                 if (type.Name != "<Module>")
@@ -37,8 +54,19 @@ namespace ContraCrack
                     {
                         if (method == assembly.EntryPoint)
                         {
+                            logger.Log("Injecting code into entrypoint \"" + method.Name + "\"");
+                            CilWorker worker;
+                            try
+                            {
+                                worker = method.Body.CilWorker;
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
+                                flag = true;
+                                return;
+                            }
                             MethodInfo showMessageMethod = typeof(System.Windows.Forms.MessageBox).GetMethod("Show", new Type[] { typeof(string) });
-                            CilWorker worker = method.Body.CilWorker;
                             MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
                             Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
                             Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
@@ -52,6 +80,8 @@ namespace ContraCrack
         }
         public void save()
         {
+            if (flag) return;
+            logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);
         }
     }

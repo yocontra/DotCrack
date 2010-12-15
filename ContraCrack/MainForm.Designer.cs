@@ -78,10 +78,10 @@
             // 
             // crackLogTextBox
             // 
-            this.crackLogTextBox.Enabled = false;
             this.crackLogTextBox.Location = new System.Drawing.Point(13, 68);
             this.crackLogTextBox.Multiline = true;
             this.crackLogTextBox.Name = "crackLogTextBox";
+            this.crackLogTextBox.ReadOnly = true;
             this.crackLogTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.crackLogTextBox.Size = new System.Drawing.Size(259, 211);
             this.crackLogTextBox.TabIndex = 5;
@@ -114,6 +114,7 @@
             // crackWorker
             // 
             this.crackWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.crackWorker_DoWork);
+            this.crackWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.crackWorker_RunWorkerCompleted);
             // 
             // MainForm
             // 

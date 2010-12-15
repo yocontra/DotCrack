@@ -25,7 +25,7 @@ namespace ContraCrack
         }
         public void log(string value)
         {
-            value += "\r\n";
+            value += Environment.NewLine;
             if (InvokeRequired)
             {
                 this.Invoke(new Action<string>(log), new object[] { value });
@@ -36,12 +36,16 @@ namespace ContraCrack
         private void crackButton_Click(object sender, EventArgs e)
         {
             crackWorker.RunWorkerAsync();
-            this.fileSelectTextBox.Enabled = false;
             this.taskComboBox.Enabled = false;
             this.crackButton.Enabled = false;
             this.fileSelectButton.Enabled = false;
         }
-
+        private void crackWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            this.taskComboBox.Enabled = true;
+            this.crackButton.Enabled = true;
+            this.fileSelectButton.Enabled = true;
+        }
         private void crackWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             if (fileSelectTextBox.Text != "")
@@ -63,13 +67,10 @@ namespace ContraCrack
                         MessageBox.Show("No task selected, please select one!");
                         return;
                 }
-                log("Starting Process...");
                 trans.load();
-                log("Running Transformer...");
                 trans.transform();
-                log("Saving Assembly...");
                 trans.save();
-                log("Finished!");
+                log("Operation Completed!");
             }
             else
             {
