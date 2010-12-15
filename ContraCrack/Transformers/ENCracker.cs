@@ -78,7 +78,7 @@ namespace ContraCrack.Transformers
                                 }
                                 for (int i = 0; i < method.Body.Instructions.Count; i++)
                                 {
-                                    method.Body.CilWorker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
+                                    worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
                                 }
                                 int count = method.Body.Instructions.Count;
                                 method.Body.ExceptionHandlers.Clear();

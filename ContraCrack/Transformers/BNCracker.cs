@@ -100,15 +100,15 @@ namespace ContraCrack.Transformers
                                     continue;
                                 }
                                 //We found the pattern and have the return value, now lets wipe everything and ret it
-                                for (int i = 0; i < method.Body.Instructions.Count; i++)
+                                for (int i = 0; i < method.Body.Instructions.Count - 2; i++)
                                 {
-                                    method.Body.CilWorker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
+                                    worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
                                 }
                                 int count = method.Body.Instructions.Count;
                                 method.Body.ExceptionHandlers.Clear();
                                 method.Body.Variables.Clear();
-                                worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldc_I4_1));
-                                worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ldstr, returnVal));//Manual: A7u-_i4-#~=w2_O5$42-_&3_0
+                                worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldstr, returnVal));//Manual: A7u-_i4-#~=w2_O5$42-_&3_0
+                                worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
                                 method.Body.Simplify();
                                 method.Body.Optimize();
                                 changed = true;

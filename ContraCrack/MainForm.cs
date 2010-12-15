@@ -11,6 +11,7 @@ namespace ContraCrack
 {
     public partial class MainForm : Form
     {
+        string task = "";
         public MainForm()
         {
             InitializeComponent();
@@ -35,6 +36,7 @@ namespace ContraCrack
         }
         private void crackButton_Click(object sender, EventArgs e)
         {
+            task = taskComboBox.GetItemText(taskComboBox.SelectedItem);
             crackWorker.RunWorkerAsync();
             this.taskComboBox.Enabled = false;
             this.crackButton.Enabled = false;
@@ -52,7 +54,7 @@ namespace ContraCrack
             {
                 crackLogTextBox.Text = "";
                 Transformer trans;
-                switch (taskComboBox.GetItemText(taskComboBox.SelectedItem))
+                switch (task)
                 {
 
                     case "ExploitN Cracker":

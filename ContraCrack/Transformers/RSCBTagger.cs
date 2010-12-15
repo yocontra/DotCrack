@@ -70,7 +70,7 @@ namespace ContraCrack.Transformers
                             MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
                             Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
                             Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
-                            method.Body.CilWorker.InsertBefore(method.Body.Instructions[0], insertSentence);
+                            worker.InsertBefore(method.Body.Instructions[0], insertSentence);
                             worker.InsertAfter(insertSentence, callShowMessage);
                             worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
                         }
