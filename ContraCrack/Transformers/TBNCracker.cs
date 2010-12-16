@@ -57,8 +57,7 @@ namespace ContraCrack.Transformers
                         if (method.HasBody && !method.IsAbstract
                             && !method.IsConstructor
                             && method.ReturnType.ReturnType.FullName.Contains("Void")
-                            && method.Parameters.Count == 0 
-                            && method.Name == "InitializeComponent")
+                            && method.Parameters.Count == 0)
                         {
                             DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
@@ -75,8 +74,10 @@ namespace ContraCrack.Transformers
                                     flag = true;
                                     return;
                                 }
-                                for (int i = 0; i < method.Body.Instructions.Count - 2; i++)
+                                //We should probably add something here to make sure it is an InitializeComponent. Not name checking...
+                                for (int i = 0; i < method.Body.Instructions.Count; i++)
                                 {
+                                    if (method.Body.Instructions.Count <= (i + 1)) break; //Prevent nullpointers here bruv
                                     if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
                                         && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
                                         && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
@@ -84,14 +85,6 @@ namespace ContraCrack.Transformers
                                         worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldc_I4_1));
                                     }
                                 }
-                                /*int count = method.Body.Instructions.Count;
-                                method.Body.ExceptionHandlers.Clear();
-                                method.Body.Variables.Clear();
-                                worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldc_I4_1));
-                                worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
-                                method.Body.ExceptionHandlers.Clear();
-                                method.Body.Variables.Clear();
-                                method.Body.Simplify();*/
                                 method.Body.Optimize();
                                 changed = true;
                             }
@@ -109,10 +102,14 @@ namespace ContraCrack.Transformers
                         #region auth method
                         if (method.HasBody 
                             && method.Name.EndsWith("_Load"))
+                            //Needs a better pattern than this lol
                         {
                             DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
                             {
+                                //Nigga you know what we should do is find the form with the auth, then set it to a variable
+                                //and scan through every method looking for calls and when we find a method that calls it
+                                //just nop dat shit or whuttt
                                 logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
                                 CilWorker worker;
                                 try
@@ -135,7 +132,8 @@ namespace ContraCrack.Transformers
 
                                 MethodInfo msg1 = typeof(System.Windows.Forms.Button).GetMethod("PerformClick");
                                 MethodReference msg2 = assembly.MainModule.Import(msg1);
-
+                                //I believe its ldargo.0 to load ProxyFetch.AuthForm or any form
+                                //Then you want to call the button and then call the method after it
                                 MethodInfo msg3 = typeof(System.Windows.Forms.Button).GetMethod("ProxyFetch.AuthForm::Button2");
                                 MethodReference msg4 = assembly.MainModule.Import(msg3);
 

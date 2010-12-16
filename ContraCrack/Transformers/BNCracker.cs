@@ -62,7 +62,7 @@ namespace ContraCrack.Transformers
                             && method.Parameters[2].ParameterType.FullName.Contains("String")
                             && method.Parameters[3].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
+                            DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");

@@ -11,6 +11,7 @@ namespace ContraCrack
 {
     public partial class MainForm : Form
     {
+        LogHandler logger = new LogHandler("MainForm");
         string task = "";
         public MainForm()
         {
@@ -39,31 +40,30 @@ namespace ContraCrack
 
         private void fileSelectButton_Click(object sender, EventArgs e)
         {
-            crackButton.PerformClick();
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter ="EXE files (*.exe)|*.exe|DLL files (*.dll)|*.dll";
             dialog.InitialDirectory = "C:/";
             dialog.Title = "Select an Assembly";
             MainForm.Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
         }
-        public void log(string value)
+        public void addToCrackLog(string value)
         {
-            value += "\r\n";
             if (InvokeRequired)
             {
-                this.Invoke(new Action<string>(log), new object[] { value });
+                this.Invoke(new Action<string>(addToCrackLog), new object[] { value });
                 return;
             }
             MainForm.Instance.crackLogTextBox.Text += value;
         }
         private void crackButton_Click(object sender, EventArgs e)
         {
-            MainForm.Instance.task = MainForm.Instance.taskComboBox.GetItemText(MainForm.Instance.taskComboBox.SelectedItem);
-            MainForm.Instance.crackWorker.RunWorkerAsync();
+            //Why are we using the singleton on calls that are made within the form?
+            MainForm.Instance.task = taskComboBox.GetItemText(MainForm.Instance.taskComboBox.SelectedItem);
             MainForm.Instance.taskComboBox.Enabled = false;
             MainForm.Instance.crackButton.Enabled = false;
             MainForm.Instance.fileSelectButton.Enabled = false;
             MainForm.Instance.crackLogTextBox.Clear();
+            MainForm.Instance.crackWorker.RunWorkerAsync();
         }
         private void crackWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
@@ -76,7 +76,6 @@ namespace ContraCrack
             //CheckForIllegalCrossThreadCalls = false;
             if (MainForm.Instance.fileSelectTextBox.Text != "")
             {
-                
                 Transformer trans;
                 switch (MainForm.Instance.task)
                 {
@@ -104,7 +103,7 @@ namespace ContraCrack
                 trans.load();
                 trans.transform();
                 trans.save();
-                log("Operation Completed!");
+                logger.Log("Operation Completed!");
             }
             else
             {
