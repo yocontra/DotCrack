@@ -14,7 +14,7 @@ namespace ContraCrack
         }
         public void Log(string input)
         {
-            ((MainForm)MainForm.ActiveForm).log("[" + Identifier + "] " + input);
+            MainForm.Instance.log("[" + Identifier + "] " + input);
         }
         public string Identifier
         {

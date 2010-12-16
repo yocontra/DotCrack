@@ -61,10 +61,10 @@ namespace ContraCrack.Transformers
                             && method.Parameters[0].ParameterType.FullName.Contains("Int32")
                             && method.Parameters[1].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = MessageBox.Show("Method \"" + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
+                            DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
                             {
-                                logger.Log("Modifying method \"" + method.Name + "\"");
+                                logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
                                 CilWorker worker;
                                 try
                                 {

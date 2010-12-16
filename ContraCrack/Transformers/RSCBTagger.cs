@@ -54,7 +54,7 @@ namespace ContraCrack.Transformers
                     {
                         if (method == assembly.EntryPoint)
                         {
-                            logger.Log("Injecting code into entrypoint \"" + method.Name + "\"");
+                            logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
                             CilWorker worker;
                             try
                             {

@@ -16,57 +16,84 @@ namespace ContraCrack
         {
             InitializeComponent();
         }
+
+        #region Singleton
+        static MainForm _Instance = null;
+        static readonly object PadLock = new object();
+
+        public static MainForm Instance
+        {
+            get
+            {
+                lock (PadLock)
+                {
+                    if (_Instance == null)
+                    {
+                        _Instance = new MainForm();
+                    }
+                    return _Instance;
+                }
+            }
+        }
+        #endregion
+
         private void fileSelectButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter ="EXE files (*.exe)|*.exe|DLL files (*.dll)|*.dll";
             dialog.InitialDirectory = "C:/";
             dialog.Title = "Select an Assembly";
-            this.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
+            MainForm.Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
         }
         public void log(string value)
         {
-            value += Environment.NewLine;
+            value += "\r\n";
             if (InvokeRequired)
             {
                 this.Invoke(new Action<string>(log), new object[] { value });
                 return;
             }
-            crackLogTextBox.Text += value;
+            MainForm.Instance.crackLogTextBox.Text += value;
         }
         private void crackButton_Click(object sender, EventArgs e)
         {
-            task = taskComboBox.GetItemText(taskComboBox.SelectedItem);
-            crackWorker.RunWorkerAsync();
-            this.taskComboBox.Enabled = false;
-            this.crackButton.Enabled = false;
-            this.fileSelectButton.Enabled = false;
+            MainForm.Instance.task = MainForm.Instance.taskComboBox.GetItemText(MainForm.Instance.taskComboBox.SelectedItem);
+            MainForm.Instance.crackWorker.RunWorkerAsync();
+            MainForm.Instance.taskComboBox.Enabled = false;
+            MainForm.Instance.crackButton.Enabled = false;
+            MainForm.Instance.fileSelectButton.Enabled = false;
+            MainForm.Instance.crackLogTextBox.Clear();
         }
         private void crackWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            this.taskComboBox.Enabled = true;
-            this.crackButton.Enabled = true;
-            this.fileSelectButton.Enabled = true;
+            MainForm.Instance.taskComboBox.Enabled = true;
+            MainForm.Instance.crackButton.Enabled = true;
+            MainForm.Instance.fileSelectButton.Enabled = true;
         }
         private void crackWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (fileSelectTextBox.Text != "")
+            //CheckForIllegalCrossThreadCalls = false;
+            if (MainForm.Instance.fileSelectTextBox.Text != "")
             {
-                crackLogTextBox.Text = "";
+                
                 Transformer trans;
-                switch (task)
+                switch (MainForm.Instance.task)
                 {
 
                     case "ExploitN Cracker":
-                        trans = new Transformers.ENCracker(fileSelectTextBox.Text);
+                        trans = new Transformers.ENCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
                     case "BottingNation Cracker":
-                        trans = new Transformers.BNCracker(fileSelectTextBox.Text);
+                        trans = new Transformers.BNCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
                     case "RSCBTagger":
-                        trans = new Transformers.RSCBTagger(fileSelectTextBox.Text);
+                        trans = new Transformers.RSCBTagger(MainForm.Instance.fileSelectTextBox.Text);
+                        break;
+
+                    case "TheBotNet Cracker":
+                        trans = new Transformers.TBNCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
                     default:
