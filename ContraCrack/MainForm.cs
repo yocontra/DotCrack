@@ -39,6 +39,7 @@ namespace ContraCrack
 
         private void fileSelectButton_Click(object sender, EventArgs e)
         {
+            crackButton.PerformClick();
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter ="EXE files (*.exe)|*.exe|DLL files (*.dll)|*.dll";
             dialog.InitialDirectory = "C:/";
