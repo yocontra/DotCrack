@@ -11,13 +11,6 @@ namespace ContraCrack.Transformers
 {
     class TBNCracker : Transformer
     {
-        //HEY NIGGA
-        //Notes: We need to add something to unclutter some of this fucking code
-        //The dialog boxes to ask for user input are creating a shitload of clutter
-        //So we need to put that somewhere else and call it from the transformers
-        //ALSO DON'T FIND METHODS BY NAME! Use instruction patterns in the methods or properties
-        //Scanning by name will completely get confuckered when obfuscation comes into play.
-
         LogHandler logger = new LogHandler("TBNCracker");
         string assemblyLocation;
         string newLocation;
@@ -75,7 +68,8 @@ namespace ContraCrack.Transformers
                             //and append it to the end of the form constructor.
                             //still not working, see notes below.
                             //maybe move the code into form_load instead of the constructor
-                            if (method.Body.Instructions.Count == 6
+                            if (method.Body.Instructions.Count >= 6
+                                && method.Parameters.Count == 2
                                 && method.Body.Instructions[0].OpCode == OpCodes.Ldarg_0
                                 && method.Body.Instructions[1].OpCode == OpCodes.Ldc_I4_1
                                 && method.Body.Instructions[2].OpCode == OpCodes.Callvirt
@@ -88,11 +82,24 @@ namespace ContraCrack.Transformers
                                 {
                                     logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
                                     int count = method.Body.Instructions.Count;
-                                    //Removes the callvirt to this.close() hopefully this will fix the issues
-                                    //method.Body.CilWorker.Remove(method.Body.Instructions[count - 2]);
-                                    //method.Body.CilWorker.Remove(method.Body.Instructions[count - 3]);
-                                    //K nvm removing that fucks shit up neega but keeping it in causes an error.
-                                    //wat do?
+
+                                    Instruction ins1 = method.Body.Instructions[count - 2];//Save these for later
+                                    Instruction ins2 = method.Body.Instructions[count - 3];
+                                    //Create a ghost method that closes the form
+                                    TypeReference returnVoidTR = assembly.MainModule.Import(typeof(void));
+                                    MethodDefinition closeDef = new MethodDefinition("CloseForm", Mono.Cecil.MethodAttributes.Public, returnVoidTR);
+                                    closeDef.Body.CilWorker.Append(ins1);
+                                    closeDef.Body.CilWorker.Append(ins2);
+                                    closeDef.Body.CilWorker.Append(closeDef.Body.CilWorker.Create(OpCodes.Ret));
+                                    //Getting an error here because I add the method to the method collection
+                                    //while the foreach is running. will fix later
+                                    type.Methods.Add(closeDef);
+
+                                    //Deletes ldarg.0 and replaces this.Close() with this.CloseForm()
+                                    method.Body.CilWorker.Remove(method.Body.Instructions[count - 2]);
+                                    Instruction newInstr = type.Constructors[0].Body.CilWorker.Create(OpCodes.Callvirt, closeDef);
+                                    method.Body.CilWorker.Replace(method.Body.Instructions[count - 3], newInstr);
+
                                     MethodDefinition newdef = type.Constructors[0];
                                     newdef.Body.CilWorker.Remove(newdef.Body.Instructions[newdef.Body.Instructions.Count - 1]); //Nop out the ret so we can inject our return code
                                     type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
