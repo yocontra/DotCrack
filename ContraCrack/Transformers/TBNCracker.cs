@@ -48,6 +48,14 @@ namespace ContraCrack.Transformers
             logger.Log("Removing Strongname Key...");
             assembly = Util.Cecil.removeStrongName(assembly);
         }
+        private MethodDefinition appendMethod(MethodDefinition inputMethod, MethodDefinition appendMethod)
+        {
+            for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
+            {
+                inputMethod.Body.CilWorker.Append(appendMethod.Body.Instructions[x]);
+            }
+            return inputMethod;
+        }
         public void transform()
         {
             if (flag) return;
@@ -88,6 +96,7 @@ namespace ContraCrack.Transformers
                                     MethodDefinition newdef = type.Constructors[0];
                                     newdef.Body.CilWorker.Remove(newdef.Body.Instructions[newdef.Body.Instructions.Count - 1]); //Nop out the ret so we can inject our return code
                                     type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
+                                    type.Constructors[0] = appendMethod(newdef, method);
                                     type.Constructors[0].Body.Optimize();
                                     changed = true;
                                 }
@@ -153,18 +162,15 @@ namespace ContraCrack.Transformers
                             //Commented this out because it is nigga-buggy and not really needed. if you can figure it out
                             //props to you brahski and you should integrate it with the intialize patcher instead of
                             //being likes its own thing
-                            /*
                             #region auth method
+                            /*
                             if (method.HasBody 
                                 && method.Name.EndsWith("_Load"))
                                 //Needs a better pattern than this lol
                             {
                                 DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
-                                if (tz == DialogResult.Yes)
+                                 if (tz == DialogResult.Yes)
                                 {
-                                    //Nigga you know what we should do is find the form with the auth, then set it to a variable
-                                    //and scan through every method looking for calls and when we find a method that calls it
-                                    //just nop dat shit or whuttt
                                     logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
                                     CilWorker worker;
                                     try
@@ -179,24 +185,15 @@ namespace ContraCrack.Transformers
                                     }
                                     for (int i = 0; i < method.Body.Instructions.Count; i++)
                                     {
-                                        worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
+                                        if (method.Body.Instructions.Count <= (i + 1)) break;
+                                        //Enabled FUCKING EVERYTHING!!!
+                                        if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
+                                            && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
+                                            && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
+                                        {
+                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldc_I4_1));
+                                        }
                                     }
-                                    int count = method.Body.Instructions.Count;
-                                    method.Body.ExceptionHandlers.Clear();
-                                    method.Body.Variables.Clear();
-
-                                    MethodInfo msg1 = typeof(System.Windows.Forms.Button).GetMethod("PerformClick");
-                                    MethodReference msg2 = assembly.MainModule.Import(msg1);
-                                    //I believe its ldargo.0 to load ProxyFetch.AuthForm or any form
-                                    //Then you want to call the button and then call the method after it
-                                    MethodInfo msg3 = typeof(System.Windows.Forms.Button).GetMethod("ProxyFetch.AuthForm::Button2");
-                                    MethodReference msg4 = assembly.MainModule.Import(msg3);
-
-                                    worker.Replace(method.Body.Instructions[count - 6], worker.Create(OpCodes.Ldarg_0));
-                                    worker.Replace(method.Body.Instructions[count - 4], worker.Create(OpCodes.Nop));//ldfld, msg4
-                                    worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Callvirt, msg2));
-                                    worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
-                                    method.Body.Simplify();
                                     method.Body.Optimize();
                                     changed = true;
                                 }
@@ -208,9 +205,8 @@ namespace ContraCrack.Transformers
                                 {
                                     return;
                                 }
-                            }
+                            }*/
                             #endregion
-                             * */
                         }
                     }
                 }

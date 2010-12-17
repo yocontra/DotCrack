@@ -34,7 +34,8 @@ namespace ContraCrack.Util
             }
             return reference;
         }
-        private static void RemoveIllegalConstruct(Mono.Cecil.MethodDefinition method)
+        //This is deobfuscation stuff, I'm hoping to turn this into an invalid opcode remover/renamer too
+        public static void RemoveIllegalConstruct(Mono.Cecil.MethodDefinition method)
         {
             if (!method.HasBody)
                 return;
@@ -56,7 +57,7 @@ namespace ContraCrack.Util
             }
         }
 
-        private static void UpdateInstructionReferences(Mono.Cecil.MethodDefinition method, Instruction oldTarget, Instruction newTarget)
+        public static void UpdateInstructionReferences(Mono.Cecil.MethodDefinition method, Instruction oldTarget, Instruction newTarget)
         {
             for (int j = 0; j < method.Body.Instructions.Count; j++)
             {
