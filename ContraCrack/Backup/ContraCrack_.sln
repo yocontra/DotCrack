@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContraCrack", "ContraCrack.csproj", "{5A9D2845-471B-4EB3-BB8A-52DB0D56A19B}"
 EndProject
 Global

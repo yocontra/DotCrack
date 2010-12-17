@@ -19,7 +19,7 @@ namespace ContraCrack.Transformers
 
         public RSCBTagger(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
+            logger.Log("RSCBTagger Started!");
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-tagged.exe");
         }
@@ -38,7 +38,9 @@ namespace ContraCrack.Transformers
                 return;
             }
             logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            assembly.Name.PublicKey = new byte[0];
+            assembly.Name.PublicKeyToken = new byte[0];
+            assembly.Name.Flags = AssemblyFlags.SideBySideCompatible;
         }
         public void transform()
         {

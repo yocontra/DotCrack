@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="ContraCrack_">
+</Property><Property Name="Solution File" Value="F:\ContraCrack\ContraCrack\ContraCrack_.sln">
+</Property><Property Name="Date" Value="Friday, December 17, 2010">
+</Property><Property Name="Time" Value="0:18 AM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="ContraCrack_.sln" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\ContraCrack_.sln">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="ContraCrack.csproj" Description="Project file successfully backed up as F:\ContraCrack\ContraCrack\Backup\ContraCrack.csproj">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="LogHandler.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\LogHandler.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Transformers\BNCracker.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Transformers\BNCracker.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Transformers\RSCBTagger.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Transformers\RSCBTagger.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Transformers\ENCracker.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Transformers\ENCracker.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="MainForm.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\MainForm.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="MainForm.Designer.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\MainForm.Designer.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Program.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Program.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Properties\AssemblyInfo.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Transformer.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Transformer.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Properties\Resources.Designer.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Properties\Resources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Properties\Settings.Designer.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Properties\Settings.Designer.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Transformers\TBNCracker.cs" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Transformers\TBNCracker.cs">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Properties\Settings.settings" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Properties\Settings.settings">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="MainForm.resx" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\MainForm.resx">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="Properties\Resources.resx" Description="File successfully backed up as F:\ContraCrack\ContraCrack\Backup\Properties\Resources.resx">
+</Event><Event ErrorLevel="0" Project="ContraCrack" Source="ContraCrack.csproj" Description="The project file does not require conversion.">
+</Event><Event ErrorLevel="3" Project="ContraCrack" Source="ContraCrack.csproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="ContraCrack_.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="ContraCrack_.sln" Description="Converted">
+</Event></UpgradeLog>

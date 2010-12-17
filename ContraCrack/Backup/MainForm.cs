@@ -57,6 +57,7 @@ namespace ContraCrack
         }
         private void crackButton_Click(object sender, EventArgs e)
         {
+            //Why are we using the singleton on calls that are made within the form?
             MainForm.Instance.task = taskComboBox.GetItemText(MainForm.Instance.taskComboBox.SelectedItem);
             MainForm.Instance.taskComboBox.Enabled = false;
             MainForm.Instance.crackButton.Enabled = false;
@@ -79,11 +80,11 @@ namespace ContraCrack
                 switch (MainForm.Instance.task)
                 {
 
-                    case "ENCracker":
+                    case "ExploitN Cracker":
                         trans = new Transformers.ENCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
-                    case "BNCracker":
+                    case "BottingNation Cracker":
                         trans = new Transformers.BNCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
@@ -91,16 +92,12 @@ namespace ContraCrack
                         trans = new Transformers.RSCBTagger(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
-                    case "TBNCracker":
+                    case "TheBotNet Cracker":
                         trans = new Transformers.TBNCracker(MainForm.Instance.fileSelectTextBox.Text);
                         break;
 
-                    case "StringReplacer":
-                        trans = new Transformers.StringReplacer(MainForm.Instance.fileSelectTextBox.Text);
-                        break;
-
                     default:
-                        MessageBox.Show("No task selected, please pick one!");
+                        MessageBox.Show("No task selected, please select one!");
                         return;
                 }
                 trans.load();

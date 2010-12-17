@@ -92,10 +92,11 @@
             this.taskComboBox.FormattingEnabled = true;
             this.taskComboBox.Items.AddRange(new object[] {
             "RSCBTagger",
-            "StringReplacer",
-            "ENCracker",
-            "TBNCracker",
-            "BNCracker"});
+            "ExploitN Cracker",
+            "TheBotNet Cracker",
+            "BottingNation Cracker",
+            "TrueCheaters Cracker",
+            "CheatingNetwork Cracker"});
             this.taskComboBox.Location = new System.Drawing.Point(48, 39);
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(143, 21);

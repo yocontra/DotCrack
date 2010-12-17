@@ -20,7 +20,7 @@ namespace ContraCrack.Transformers
 
         public BNCracker(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
+            logger.Log("BNCracker Started!");
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
         }
@@ -39,7 +39,9 @@ namespace ContraCrack.Transformers
                 return;
             }
             logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            assembly.Name.PublicKey = new byte[0];
+            assembly.Name.PublicKeyToken = new byte[0];
+            assembly.Name.Flags = AssemblyFlags.SideBySideCompatible;
         }
         public void transform()
         {
@@ -60,7 +62,7 @@ namespace ContraCrack.Transformers
                             && method.Parameters[2].ParameterType.FullName.Contains("String")
                             && method.Parameters[3].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                            DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");

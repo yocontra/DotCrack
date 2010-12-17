@@ -27,7 +27,7 @@ namespace ContraCrack.Transformers
 
         public TBNCracker(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
+            logger.Log("TBNCracker Started!");
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
         }
@@ -46,7 +46,17 @@ namespace ContraCrack.Transformers
                 return;
             }
             logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            assembly.Name.PublicKey = new byte[0];
+            assembly.Name.PublicKeyToken = new byte[0];
+            assembly.Name.Flags = AssemblyFlags.SideBySideCompatible;
+        }
+        private MethodDefinition appendMethod(MethodDefinition inputMethod, MethodDefinition appendMethod)
+        {
+            for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
+            {
+                inputMethod.Body.CilWorker.Append(appendMethod.Body.Instructions[x]);
+            }
+            return inputMethod;
         }
         public void transform()
         {
@@ -75,7 +85,7 @@ namespace ContraCrack.Transformers
                                 && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
                                 && method.Body.Instructions[5].OpCode == OpCodes.Ret)
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!");
+                                DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
@@ -87,7 +97,7 @@ namespace ContraCrack.Transformers
                                     //wat do?
                                     MethodDefinition newdef = type.Constructors[0];
                                     newdef.Body.CilWorker.Remove(newdef.Body.Instructions[newdef.Body.Instructions.Count - 1]); //Nop out the ret so we can inject our return code
-                                    type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
+                                    type.Constructors[0] = appendMethod(newdef, method);
                                     type.Constructors[0].Body.Optimize();
                                     changed = true;
                                 }
@@ -111,7 +121,7 @@ namespace ContraCrack.Transformers
                                 && method.Body.Variables.Count >= 1
                                 && method.Body.Variables[0].VariableType.FullName.ToString().Contains("ComponentResourceManager"))
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                                DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
@@ -129,7 +139,7 @@ namespace ContraCrack.Transformers
                                     for (int i = 0; i < method.Body.Instructions.Count; i++)
                                     {
                                         if (method.Body.Instructions.Count <= (i + 1)) break;
-                                        //Enable FUCKING EVERYTHING!!!
+                                        //Enabled FUCKING EVERYTHING!!!
                                         if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
                                             && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
                                             && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
@@ -159,7 +169,7 @@ namespace ContraCrack.Transformers
                                 && method.Name.EndsWith("_Load"))
                                 //Needs a better pattern than this lol
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                                DialogResult tz = MessageBox.Show("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!", MessageBoxButtons.YesNoCancel);
                                 if (tz == DialogResult.Yes)
                                 {
                                     //Nigga you know what we should do is find the form with the auth, then set it to a variable
@@ -215,6 +225,14 @@ namespace ContraCrack.Transformers
                     }
                 }
             }
+        }
+
+        static MethodReference MakeGeneric(MethodReference method, TypeReference declaringType)
+        {
+            var reference = new MethodReference(method.Name, declaringType, method.ReturnType.ReturnType, method.HasThis, method.ExplicitThis, MethodCallingConvention.Generic);
+            foreach (ParameterDefinition parameter in method.Parameters)
+                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+            return reference;
         }
 
         public void save()
