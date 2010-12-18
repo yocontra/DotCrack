@@ -6,6 +6,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Reflection;
 using System.Windows.Forms;
+using ContraCrack.Util;
 
 namespace ContraCrack.Transformers
 {
@@ -37,8 +38,11 @@ namespace ContraCrack.Transformers
                 flag = true;
                 return;
             }
-            logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            if (assembly.hasStrongName())
+            {
+                logger.Log("Removing Strongname Key...");
+                assembly.removeStrongName();
+            }
         }
         public void transform()
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Reflection;
@@ -38,8 +39,11 @@ namespace ContraCrack.Transformers
                 flag = true;
                 return;
             }
-            logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            if (assembly.hasStrongName())
+            {
+                logger.Log("Removing Strongname Key...");
+                assembly.removeStrongName();
+            }
         }
         private MethodDefinition appendMethod(MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
@@ -77,7 +81,7 @@ namespace ContraCrack.Transformers
                                 && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
                                 && method.Body.Instructions[5].OpCode == OpCodes.Ret)
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!");
+                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!");
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
@@ -127,7 +131,7 @@ namespace ContraCrack.Transformers
                                 && method.Body.Variables.Count >= 1
                                 && method.Body.Variables[0].VariableType.FullName.ToString().Contains("ComponentResourceManager"))
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
@@ -175,7 +179,7 @@ namespace ContraCrack.Transformers
                                 && method.Name.EndsWith("_Load"))
                                 //Needs a better pattern than this lol
                             {
-                                DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
                                  if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");

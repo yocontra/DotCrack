@@ -1,0 +1,8 @@
+﻿TODO/Notes
+------------
+1. Add Invalid OpCodes to cecil dll to fix invalid token exceptions
+2. Make a flag boolean in transformers and do if(!trans.flag) save(); etc. in MainForm instead of checking it 
+	within each trans to clean up code
+3. Fix the fucking TBN shit I half-wrote
+4. Clean up code! Dirty mess atm. Once invalid opcodes are taken care of, 
+	most of the exception handlers can be removed (thank god)

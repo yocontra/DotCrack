@@ -8,16 +8,28 @@ using System.Reflection;
 
 namespace ContraCrack.Util
 {
-    class Cecil
+    public static class Cecil
     {
-        public static AssemblyDefinition removeStrongName(AssemblyDefinition asm)
+        //These extend AssemblyDefinition and allow me to assembly.hasStrongName() instead of Cecil.hasStrongName(assembly)
+        public static bool hasStrongName(this AssemblyDefinition asm)
+        {
+            if (asm.Name.HasPublicKey)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static AssemblyDefinition removeStrongName(this AssemblyDefinition asm)
         {
             asm.Name.PublicKey = new byte[0];
             asm.Name.PublicKeyToken = new byte[0];
             asm.Name.Flags = AssemblyFlags.SideBySideCompatible;
             return asm;
         }
-        public static MethodDefinition appendMethod(MethodDefinition inputMethod, MethodDefinition appendMethod)
+        public static MethodDefinition appendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
             for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
             {

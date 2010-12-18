@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace ContraCrack.Transformers
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        bool flag = false;
+        bool flag = false; 
         bool changed = false;
         string toChange = "";
         string replacement = "";
@@ -40,11 +41,14 @@ namespace ContraCrack.Transformers
                 flag = true;
                 return;
             }
-            logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            if (assembly.hasStrongName())
+            {
+                logger.Log("Removing Strongname Key...");
+                assembly.removeStrongName();
+            }
             logger.Log("Gathering User Input...");
-            toChange = Util.Interface.getUserInputDialog("What string are you replacing?", "Settings", "example.com");
-            replacement = Util.Interface.getUserInputDialog("What are you replacing it with?", "Settings", "example.net");
+            toChange = Interface.getUserInputDialog("What string are you replacing?", "Settings", "example.com");
+            replacement = Interface.getUserInputDialog("What are you replacing it with?", "Settings", "example.net");
         }
         public void transform()
         {

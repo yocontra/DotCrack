@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Reflection;
@@ -38,8 +39,11 @@ namespace ContraCrack.Transformers
                 flag = true;
                 return;
             }
-            logger.Log("Removing Strongname Key...");
-            assembly = Util.Cecil.removeStrongName(assembly);
+            if (assembly.hasStrongName())
+            {
+                logger.Log("Removing Strongname Key...");
+                assembly.removeStrongName();
+            }
         }
         public void transform()
         {
@@ -59,7 +63,7 @@ namespace ContraCrack.Transformers
                             && method.Parameters[0].ParameterType.FullName.Contains("Int32")
                             && method.Parameters[1].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = Util.Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");

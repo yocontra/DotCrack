@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace ContraCrack.Util
 {
-    class Interface
+    static class Interface
     {
         //I'm planning on putting some more stuff in here
         public static DialogResult getYesNoDialog(string prompt, string title)
