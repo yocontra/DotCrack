@@ -22,12 +22,11 @@ namespace ContraCrack.Util
                 return false;
             }
         }
-        public static AssemblyDefinition removeStrongName(this AssemblyDefinition asm)
+        public static void removeStrongName(this AssemblyDefinition asm)
         {
             asm.Name.PublicKey = new byte[0];
             asm.Name.PublicKeyToken = new byte[0];
             asm.Name.Flags = AssemblyFlags.SideBySideCompatible;
-            return asm;
         }
         public static MethodDefinition appendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
