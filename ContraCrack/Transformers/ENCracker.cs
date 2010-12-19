@@ -10,14 +10,14 @@ using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
 {
-    class ENCracker : Transformer
+    class ENCracker : ITransformer
     {
         LogHandler logger = new LogHandler("ENCracker");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        public bool flag { get; set; }
-        public bool changed { get; set; }
+        public bool Flag { get; set; }
+        public bool Changed { get; set; }
 
         public ENCracker(string fileLoc)
         {
@@ -25,26 +25,26 @@ namespace ContraCrack.Transformers
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
         }
-        public void load()
+        public void Load()
         {
             logger.Log("Loading Assembly...");
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Error loading assembly.");
-                flag = true;
+                Flag = true;
                 return;
             }
-            if (assembly.hasStrongName())
+            if (assembly.HasStrongName())
             {
                 logger.Log("Removing Strongname Key...");
-                assembly.removeStrongName();
+                assembly.RemoveStrongName();
             }
         }
-        public void transform()
+        public void Transform()
         {
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
@@ -61,7 +61,7 @@ namespace ContraCrack.Transformers
                             && method.Parameters[0].ParameterType.FullName.Contains("Int32")
                             && method.Parameters[1].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
@@ -70,10 +70,10 @@ namespace ContraCrack.Transformers
                                 {
                                     worker = method.Body.CilWorker;
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
                                     MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                    flag = true;
+                                    Flag = true;
                                     return;
                                 }
                                 for (int i = 0; i < method.Body.Instructions.Count; i++)
@@ -87,7 +87,7 @@ namespace ContraCrack.Transformers
                                 worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
                                 method.Body.Simplify();
                                 method.Body.Optimize();
-                                changed = true;
+                                Changed = true;
                             }
                             else if (tz == DialogResult.No)
                             {
@@ -102,7 +102,7 @@ namespace ContraCrack.Transformers
                 }
             }
         }
-        public void save()
+        public void Save()
         {
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);

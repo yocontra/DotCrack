@@ -8,12 +8,12 @@ using System.Reflection;
 
 namespace ContraCrack
 {
-    interface Transformer
+    interface ITransformer
     {
-        bool flag { get; set; }
-        bool changed { get; set; }
-        void load();
-        void transform();
-        void save();
+        bool Flag { get; set; }
+        bool Changed { get; set; }
+        void Load();
+        void Transform();
+        void Save();
     }
 }

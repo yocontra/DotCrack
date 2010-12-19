@@ -10,14 +10,14 @@ using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
 {
-    class TBNCracker : Transformer
+    class TBNCracker : ITransformer
     {
         LogHandler logger = new LogHandler("TBNCracker");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        public bool flag { get; set; }
-        public bool changed { get; set; }
+        public bool Flag { get; set; }
+        public bool Changed { get; set; }
 
         public TBNCracker(string fileLoc)
         {
@@ -25,26 +25,26 @@ namespace ContraCrack.Transformers
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
         }
-        public void load()
+        public void Load()
         {
             logger.Log("Loading Assembly...");
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Error loading assembly.");
-                flag = true;
+                Flag = true;
                 return;
             }
-            if (assembly.hasStrongName())
+            if (assembly.HasStrongName())
             {
                 logger.Log("Removing Strongname Key...");
-                assembly.removeStrongName();
+                assembly.RemoveStrongName();
             }
         }
-        public void transform()
+        public void Transform()
         {
             //transform2();
             //return;
@@ -58,12 +58,12 @@ namespace ContraCrack.Transformers
                         #region remove MyApplication_Startup
                         if (method.Name == "MyApplication_Startup")
                         {
-                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" contains startup code. Would you like to wipe it?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" contains startup code. Would you like to wipe it?", "Ay Papi!");
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Removing startup code");
                                 method.Body.Instructions[0].OpCode = OpCodes.Ret;
-                                changed = true;
+                                Changed = true;
                             }
                         }
                         #endregion
@@ -82,7 +82,7 @@ namespace ContraCrack.Transformers
                                 && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
                                 && method.Body.Instructions[5].OpCode == OpCodes.Ret)
                             {
-                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's form load?", "Ay Papi!");
+                                DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's form load?", "Ay Papi!");
                                 if (tz == DialogResult.Yes)
                                 {
                                     MethodDefinition construct = type.Constructors[0];
@@ -100,8 +100,8 @@ namespace ContraCrack.Transformers
                                         logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + formload.Name + "\"");
                                         MethodDefinition formloadDef = type.Methods.GetMethod(formload.Name)[0];
                                         formloadDef.Body.Instructions.Clear();
-                                        formloadDef.appendMethod(method);
-                                        changed = true;
+                                        formloadDef.AppendMethod(method);
+                                        Changed = true;
                                     }
                                     else
                                     {
@@ -128,17 +128,14 @@ namespace ContraCrack.Transformers
                                 && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
                                 && method.Body.Instructions[5].OpCode == OpCodes.Ret)
                             {
-                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!");
+                                DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's constructor?", "Ay Papi!");
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
-                                    int count = method.Body.Instructions.Count;
-
                                     MethodDefinition newdef = type.Constructors[0];
-                                    type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
-                                    type.Constructors[0] = newdef.appendMethod(method);
+                                    type.Constructors[0] = newdef.AppendMethod(method);
                                     type.Constructors[0].Body.Optimize();
-                                    changed = true;
+                                    Changed = true;
                                 }
                             }
                         }
@@ -151,9 +148,9 @@ namespace ContraCrack.Transformers
                                 && method.ReturnType.ReturnType.FullName.Contains("Void")
                                 && method.Parameters.Count == 0
                                 && method.Body.Variables.Count >= 1
-                                && method.Body.Variables[0].VariableType.FullName.ToString().Contains("ComponentResourceManager"))
+                                && method.Body.Variables[0].VariableType.FullName.Contains("ComponentResourceManager"))
                             {
-                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                                DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
                                 if (tz == DialogResult.Yes)
                                 {
                                     logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
@@ -162,10 +159,10 @@ namespace ContraCrack.Transformers
                                     {
                                         worker = method.Body.CilWorker;
                                     }
-                                    catch (Exception e)
+                                    catch (Exception)
                                     {
                                         MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                        flag = true;
+                                        Flag = true;
                                         return;
                                     }
                                     for (int i = 0; i < method.Body.Instructions.Count; i++)
@@ -180,7 +177,7 @@ namespace ContraCrack.Transformers
                                         }
                                     }
                                     method.Body.Optimize();
-                                    changed = true;
+                                    Changed = true;
                                 }
                             }
                             #endregion
@@ -188,7 +185,7 @@ namespace ContraCrack.Transformers
                     }
                 }
             }
-        public void transform2()
+        public void Transform2()
         {
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
@@ -202,13 +199,13 @@ namespace ContraCrack.Transformers
                         {
                             logger.Log("Removing startup code");
                             method.Body.Instructions[0].OpCode = OpCodes.Ret;
-                            changed = true;
+                            Changed = true;
                         }
                         #endregion
                         #region enable
                         if (method.Name == "InitializeComponent")
                         {
-                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
                             if (tz == DialogResult.Yes)
                             {
                                 logger.Log("Enabling all Controls");
@@ -224,7 +221,7 @@ namespace ContraCrack.Transformers
                                     }
                                 }
                                 method.Body.Optimize();
-                                changed = true;
+                                Changed = true;
                             }
                         }
                         #endregion
@@ -240,9 +237,9 @@ namespace ContraCrack.Transformers
                             {
                                 if (constructor.Body.Instructions[i].OpCode == OpCodes.Stfld && constructor.Body.Instructions[i].Operand.ToString().Contains("Form1::bS"))
                                 {
-                                    logger.Log("Patching " + constructor.Body.Instructions[i].Operand.ToString());
+                                    logger.Log("Patching " + constructor.Body.Instructions[i].Operand);
                                     constructor.Body.Instructions[i - 1].OpCode = OpCodes.Ldc_I4_1;
-                                    changed = true;
+                                    Changed = true;
                                 }
                             }
                         }
@@ -251,7 +248,7 @@ namespace ContraCrack.Transformers
                 }
             }
         }
-        public void save()
+        public void Save()
         {
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);

@@ -1,30 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ContraCrack
+﻿namespace ContraCrack.Util
 {
     class LogHandler
     {
-        private string name;
+        private string _name;
         public LogHandler(string identifier)
         {
-            name = identifier;
+            _name = identifier;
         }
         public void Log(string input)
         {
-            MainForm.Instance.addToCrackLog("[" + Identifier + "] " + input + "\r\n");
+            MainForm.Instance.AddToCrackLog("[" + Identifier + "] " + input + "\r\n");
         }
         public string Identifier
         {
             get
             {
-                return name;
+                return _name;
             }
             set
             {
-                name = Identifier;
+                _name = value;
             }
         }
     }

@@ -10,14 +10,14 @@ using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
 {
-    class StringReplacer : Transformer
+    class StringReplacer : ITransformer
     {
         LogHandler logger = new LogHandler("StringReplacer");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        public bool flag { get; set; }
-        public bool changed { get; set; }
+        public bool Flag { get; set; }
+        public bool Changed { get; set; }
         string toChange = "";
         string replacement = "";
 
@@ -27,29 +27,29 @@ namespace ContraCrack.Transformers
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-cracked.exe");
         }
-        public void load()
+        public void Load()
         {
             logger.Log("Loading Assembly...");
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Error loading assembly.");
-                flag = true;
+                Flag = true;
                 return;
             }
-            if (assembly.hasStrongName())
+            if (assembly.HasStrongName())
             {
                 logger.Log("Removing Strongname Key...");
-                assembly.removeStrongName();
+                assembly.RemoveStrongName();
             }
             logger.Log("Gathering User Input...");
-            toChange = Interface.getUserInputDialog("What string are you replacing?", "Settings", "example.com");
-            replacement = Interface.getUserInputDialog("What are you replacing it with?", "Settings", "example.net");
+            toChange = Interface.GetUserInputDialog("What string are you replacing?", "Settings", "example.com");
+            replacement = Interface.GetUserInputDialog("What are you replacing it with?", "Settings", "example.net");
         }
-        public void transform()
+        public void Transform()
         {
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
@@ -65,10 +65,10 @@ namespace ContraCrack.Transformers
                                 {
                                     worker = method.Body.CilWorker;
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
                                     MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                    flag = true;
+                                    Flag = true;
                                     return;
                                 }
                                 for (int i = 0; i < method.Body.Instructions.Count; i++)
@@ -82,13 +82,13 @@ namespace ContraCrack.Transformers
                                                 + "\" with \"" + newval + "\" in \"" + type.FullName + '.' + method.Name + "\"");
                                     }
                                 }
-                                changed = true;
+                                Changed = true;
                         }
                     }
                 }
             }
         }
-        public void save()
+        public void Save()
         {
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);

@@ -47,7 +47,7 @@
             this.crackButton.TabIndex = 0;
             this.crackButton.Text = "Run";
             this.crackButton.UseVisualStyleBackColor = true;
-            this.crackButton.Click += new System.EventHandler(this.crackButton_Click);
+            this.crackButton.Click += new System.EventHandler(this.CrackButtonClick);
             // 
             // fileSelectLabel
             // 
@@ -74,7 +74,7 @@
             this.fileSelectButton.TabIndex = 4;
             this.fileSelectButton.Text = "Select...";
             this.fileSelectButton.UseVisualStyleBackColor = true;
-            this.fileSelectButton.Click += new System.EventHandler(this.fileSelectButton_Click);
+            this.fileSelectButton.Click += new System.EventHandler(this.FileSelectButtonClick);
             // 
             // crackLogTextBox
             // 
@@ -112,8 +112,8 @@
             // 
             // crackWorker
             // 
-            this.crackWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.crackWorker_DoWork);
-            this.crackWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.crackWorker_RunWorkerCompleted);
+            this.crackWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.CrackWorkerDoWork);
+            this.crackWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.CrackWorkerRunWorkerCompleted);
             // 
             // MainForm
             // 

@@ -6,20 +6,21 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using ContraCrack.Util;
 
 namespace ContraCrack
 {
     public partial class MainForm : Form
     {
         LogHandler logger = new LogHandler("MainForm");
-        string task = "";
+        string _task = "";
         public MainForm()
         {
             InitializeComponent();
         }
 
         #region Singleton
-        static MainForm _Instance = null;
+        static MainForm _instance;
         static readonly object PadLock = new object();
 
         public static MainForm Instance
@@ -28,75 +29,73 @@ namespace ContraCrack
             {
                 lock (PadLock)
                 {
-                    if (_Instance == null)
-                    {
-                        _Instance = new MainForm();
-                    }
-                    return _Instance;
+                    return _instance ?? (_instance = new MainForm());
                 }
             }
         }
         #endregion
 
-        private void fileSelectButton_Click(object sender, EventArgs e)
+        private void FileSelectButtonClick(object sender, EventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter ="EXE files (*.exe)|*.exe|DLL files (*.dll)|*.dll";
-            dialog.InitialDirectory = "C:/";
-            dialog.Title = "Select an Assembly";
-            MainForm.Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
+            OpenFileDialog dialog = new OpenFileDialog
+                                        {
+                                            Filter = "EXE files (*.exe)|*.exe|DLL files (*.dll)|*.dll",
+                                            InitialDirectory = "C:/",
+                                            Title = "Select an Assembly"
+                                        };
+            Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
         }
-        public void addToCrackLog(string value)
+        public void AddToCrackLog(string value)
         {
             if (InvokeRequired)
             {
-                this.Invoke(new Action<string>(addToCrackLog), new object[] { value });
+                Invoke(new Action<string>(AddToCrackLog), new object[] { value });
                 return;
             }
-            MainForm.Instance.crackLogTextBox.Text += value;
+            Instance.crackLogTextBox.Text += value;
         }
-        private void crackButton_Click(object sender, EventArgs e)
+        private void CrackButtonClick(object sender, EventArgs e)
         {
-            MainForm.Instance.task = taskComboBox.GetItemText(MainForm.Instance.taskComboBox.SelectedItem);
-            MainForm.Instance.taskComboBox.Enabled = false;
-            MainForm.Instance.crackButton.Enabled = false;
-            MainForm.Instance.fileSelectButton.Enabled = false;
-            MainForm.Instance.crackLogTextBox.Clear();
-            MainForm.Instance.crackWorker.RunWorkerAsync();
+            Instance._task = taskComboBox.GetItemText(Instance.taskComboBox.SelectedItem);
+            Instance.taskComboBox.Enabled = false;
+            Instance.crackButton.Enabled = false;
+            Instance.fileSelectButton.Enabled = false;
+            Instance.crackLogTextBox.Clear();
+            Instance.crackWorker.RunWorkerAsync();
         }
-        private void crackWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        private void CrackWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            MainForm.Instance.taskComboBox.Enabled = true;
-            MainForm.Instance.crackButton.Enabled = true;
-            MainForm.Instance.fileSelectButton.Enabled = true;
+            Instance.taskComboBox.Enabled = true;
+            Instance.crackButton.Enabled = true;
+            Instance.fileSelectButton.Enabled = true;
         }
-        private void crackWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void CrackWorkerDoWork(object sender, DoWorkEventArgs e)
         {
             //CheckForIllegalCrossThreadCalls = false;
-            if (MainForm.Instance.fileSelectTextBox.Text != "")
+            if (Instance.fileSelectTextBox.Text != "")
             {
-                Transformer trans;
-                switch (MainForm.Instance.task)
+                ITransformer trans;
+                switch (Instance._task)
                 {
 
                     case "ENCracker":
-                        trans = new Transformers.ENCracker(MainForm.Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.ENCracker(Instance.fileSelectTextBox.Text);
                         break;
 
                     case "BNCracker":
-                        trans = new Transformers.BNCracker(MainForm.Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.BNCracker(Instance.fileSelectTextBox.Text);
                         break;
 
                     case "RSCBTagger":
-                        trans = new Transformers.RSCBTagger(MainForm.Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.RSCBTagger(Instance.fileSelectTextBox.Text);
                         break;
 
                     case "TBNCracker":
-                        trans = new Transformers.TBNCracker(MainForm.Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.TBNCracker(Instance.fileSelectTextBox.Text);
                         break;
 
                     case "StringReplacer":
-                        trans = new Transformers.StringReplacer(MainForm.Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.StringReplacer(Instance.fileSelectTextBox.Text);
                         break;
 
                     default:
@@ -105,41 +104,38 @@ namespace ContraCrack
                 }
                 #region Run transformer/check for flags
                 //This is way fucking messy but it cleans up code within the transformers
-                trans.flag = false;
-                if (!trans.flag)
+                trans.Flag = false;
+                if (!trans.Flag)
                 {
-                    trans.load();
+                    trans.Load();
                 }
                 else
                 {
                     logger.Log("Transformer threw flag, aborting!");
                     return;
                 }
-                if (!trans.flag)
+                if (!trans.Flag)
                 {
-                    trans.transform();
+                    trans.Transform();
                 }
                 else
                 {
                     logger.Log("Transformer threw flag, aborting!");
                     return;
                 }
-                if (!trans.flag && trans.changed)
+                if (!trans.Flag && trans.Changed)
                 {
-                    trans.save();
+                    trans.Save();
                 }
                 else
                 {
-                    if (trans.flag)
+                    if (trans.Flag)
                     {
                         logger.Log("Transformer threw flag, aborting!");
                         return;
                     }
-                    else
-                    {
-                        logger.Log("Transformer made no changes! Aborting save...");
-                        return;
-                    }
+                    logger.Log("Transformer made no changes! Aborting save...");
+                    return;
                 }
                 logger.Log("Operation Completed!");
                 #endregion

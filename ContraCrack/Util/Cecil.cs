@@ -11,24 +11,18 @@ namespace ContraCrack.Util
     public static class Cecil
     {
         //These extend AssemblyDefinition and allow me to assembly.hasStrongName() instead of Cecil.hasStrongName(assembly)
-        public static bool hasStrongName(this AssemblyDefinition asm)
+        public static bool HasStrongName(this AssemblyDefinition asm)
         {
-            if (asm.Name.HasPublicKey)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return asm.Name.HasPublicKey;
         }
-        public static void removeStrongName(this AssemblyDefinition asm)
+
+        public static void RemoveStrongName(this AssemblyDefinition asm)
         {
             asm.Name.PublicKey = new byte[0];
             asm.Name.PublicKeyToken = new byte[0];
             asm.Name.Flags = AssemblyFlags.SideBySideCompatible;
         }
-        public static MethodDefinition appendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
+        public static MethodDefinition AppendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
             int count = inputMethod.Body.Instructions.Count;
             if (count > 0)
@@ -41,7 +35,7 @@ namespace ContraCrack.Util
             }
             return inputMethod;
         }
-        public static MethodReference getGenericMethodRef(MethodReference method, TypeReference declaringType)
+        public static MethodReference GetGenericMethodRef(MethodReference method, TypeReference declaringType)
         {
             var reference = new MethodReference(method.Name, declaringType, method.ReturnType.ReturnType, method.HasThis, method.ExplicitThis, MethodCallingConvention.Generic);
             foreach (ParameterDefinition parameter in method.Parameters)
@@ -51,7 +45,7 @@ namespace ContraCrack.Util
             return reference;
         }
         //This is deobfuscation stuff, I'm hoping to turn this into an invalid opcode remover/renamer too
-        public static void RemoveIllegalConstruct(Mono.Cecil.MethodDefinition method)
+        public static void RemoveIllegalConstruct(MethodDefinition method)
         {
             if (!method.HasBody)
                 return;
@@ -73,7 +67,7 @@ namespace ContraCrack.Util
             }
         }
 
-        public static void UpdateInstructionReferences(Mono.Cecil.MethodDefinition method, Instruction oldTarget, Instruction newTarget)
+        public static void UpdateInstructionReferences(MethodDefinition method, Instruction oldTarget, Instruction newTarget)
         {
             for (int j = 0; j < method.Body.Instructions.Count; j++)
             {

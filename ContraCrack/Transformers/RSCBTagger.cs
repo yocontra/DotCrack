@@ -10,14 +10,14 @@ using ContraCrack.Util;
 
 namespace ContraCrack.Transformers
 {
-    class RSCBTagger : Transformer
+    class RSCBTagger : ITransformer
     {
         LogHandler logger = new LogHandler("RSCBTagger");
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        public bool flag { get; set; }
-        public bool changed { get; set; }
+        public bool Flag { get; set; }
+        public bool Changed { get; set; }
 
         public RSCBTagger(string fileLoc)
         {
@@ -25,26 +25,26 @@ namespace ContraCrack.Transformers
             assemblyLocation = fileLoc;
             newLocation = fileLoc.Replace(".exe", "-tagged.exe");
         }
-        public void load()
+        public void Load()
         {
             logger.Log("Loading Assembly...");
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Error loading assembly.");
-                flag = true;
+                Flag = true;
                 return;
             }
-            if (assembly.hasStrongName())
+            if (assembly.HasStrongName())
             {
                 logger.Log("Removing Strongname Key...");
-                assembly.removeStrongName();
+                assembly.RemoveStrongName();
             }
         }
-        public void transform()
+        public void Transform()
         {
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
@@ -61,26 +61,26 @@ namespace ContraCrack.Transformers
                             {
                                 worker = method.Body.CilWorker;
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                flag = true;
+                                Flag = true;
                                 return;
                             }
-                            MethodInfo showMessageMethod = typeof(System.Windows.Forms.MessageBox).GetMethod("Show", new Type[] { typeof(string) });
+                            MethodInfo showMessageMethod = typeof(MessageBox).GetMethod("Show", new[] { typeof(string) });
                             MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
                             Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
                             Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
                             worker.InsertBefore(method.Body.Instructions[0], insertSentence);
                             worker.InsertAfter(insertSentence, callShowMessage);
                             worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
-                            changed = true;
+                            Changed = true;
                         }
                     }
                 }
             }
         }
-        public void save()
+        public void Save()
         {
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);

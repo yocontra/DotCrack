@@ -8,15 +8,6 @@ c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\bin\
 c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
 c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
 c:\users\eric\documents\visual studio 2010\Projects\ContraCrack\ContraCrack\bin\Debug\Mono.Cecil.dll
-F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
-F:\ContraCrack\ContraCrack\obj\x86\Debug\ResolveAssemblyReference.cache
-F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.MainForm.resources
-F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resources.resources
-F:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
-F:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
-F:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe
-F:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.pdb
-F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\bin\Debug\ContraCrack.pdb
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ResolveAssemblyReference.cache
@@ -34,4 +25,3 @@ D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resou
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
-F:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe.config

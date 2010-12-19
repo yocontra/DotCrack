@@ -82,7 +82,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transformer.cs" />
+    <Compile Include="ITransformer.cs" />
     <Compile Include="Transformers\StringReplacer.cs" />
     <Compile Include="Util\Cecil.cs" />
     <Compile Include="Util\Interface.cs" />
