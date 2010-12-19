@@ -55,6 +55,8 @@ namespace ContraCrack.Transformers
         }
         public void transform()
         {
+            transform2();
+            return;
             if (flag) return;
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
@@ -223,7 +225,71 @@ namespace ContraCrack.Transformers
                 }
             }
         }
+        public void transform2()
+        {
+            if (flag) return;
+            logger.Log("Starting Transformer...");
+            foreach (TypeDefinition type in assembly.MainModule.Types)
+            {
+                if (type.Name != "<Module>")
+                {
+                    foreach (MethodDefinition method in type.Methods)
+                    {
+                        #region removeapplication startup
+                        if (method.Name == "MyApplication_Startup")
+                        {
+                            logger.Log("Removing startup code");
+                            method.Body.Instructions[0].OpCode = OpCodes.Ret;
+                            changed = true;
+                        }
+                        #endregion
+                        #region enable
+                        if (method.Name == "InitializeComponent")
+                        {
+                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                            if (tz == DialogResult.Yes)
+                            {
+                                logger.Log("Enabling all Controls");
+                                for (int i = 0; i < method.Body.Instructions.Count; i++)
+                                {
+                                    if (method.Body.Instructions.Count <= (i + 1)) break;
+                                    //Enabled FUCKING EVERYTHING!!!
 
+                                    if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
+                                        && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
+                                        && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
+                                    {
+                                        method.Body.CilWorker.Replace(method.Body.Instructions[i], method.Body.CilWorker.Create(OpCodes.Ldc_I4_1));
+                                    }
+                                }
+                                method.Body.Optimize();
+                                changed = true;
+                            }
+                        }
+                        #endregion
+                    }
+                    foreach (MethodDefinition constructor in type.Constructors)
+                    {
+                        #region update flags
+                        //warning: this is really shitty unclean not vague enough code
+                        //todo: make it inject the code from the auth method's success into here
+                        if (type.Name == "Form1")
+                        {
+                            for (int i = 1; i < constructor.Body.Instructions.Count; i++)
+                            {
+                                if (constructor.Body.Instructions[i].OpCode == OpCodes.Stfld && constructor.Body.Instructions[i].Operand.ToString().Contains("Form1::bS"))
+                                {
+                                    logger.Log("Patching " + constructor.Body.Instructions[i].Operand.ToString());
+                                    constructor.Body.Instructions[i - 1].OpCode = OpCodes.Ldc_I4_1;
+                                    changed = true;
+                                }
+                            }
+                        }
+                        #endregion
+                    }
+                }
+            }
+        }
         public void save()
         {
             if (flag) return;

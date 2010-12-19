@@ -25,3 +25,12 @@ C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\obj
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.csproj.GenerateResource.Cache
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
 C:\Users\Admin\Documents\Visual Studio 2008\Projects\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
+D:\AJ\Desktop\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe
+D:\AJ\Desktop\ContraCrack\ContraCrack\bin\Debug\ContraCrack.pdb
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.MainForm.resources
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resources.resources
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
