@@ -47,12 +47,15 @@ namespace ContraCrack
         }
         public void AddToCrackLog(string value)
         {
-            if (InvokeRequired)
+            if (!InvokeRequired)
             {
-                Invoke(new Action<string>(AddToCrackLog), new object[] { value });
+                Instance.crackLogTextBox.Text += value;
+            }
+            else
+            {
+                Invoke(new Action<string>(AddToCrackLog), new object[] {value});
                 return;
             }
-            Instance.crackLogTextBox.Text += value;
         }
         private void CrackButtonClick(object sender, EventArgs e)
         {
@@ -72,12 +75,15 @@ namespace ContraCrack
         private void CrackWorkerDoWork(object sender, DoWorkEventArgs e)
         {
             //CheckForIllegalCrossThreadCalls = false;
-            if (Instance.fileSelectTextBox.Text != "")
+            if (Instance.fileSelectTextBox.Text == "")
+            {
+                MessageBox.Show("Please select an assembly first!");
+            }
+            else
             {
                 ITransformer trans;
                 switch (Instance._task)
                 {
-
                     case "ENCracker":
                         trans = new Transformers.ENCracker(Instance.fileSelectTextBox.Text);
                         break;
@@ -102,32 +108,24 @@ namespace ContraCrack
                         MessageBox.Show("No task selected, please pick one!");
                         return;
                 }
+
                 #region Run transformer/check for flags
+
                 //This is way fucking messy but it cleans up code within the transformers
                 trans.Flag = false;
-                if (!trans.Flag)
-                {
-                    trans.Load();
-                }
-                else
+                if (trans.Flag)
                 {
                     logger.Log("Transformer threw flag, aborting!");
                     return;
                 }
-                if (!trans.Flag)
-                {
-                    trans.Transform();
-                }
-                else
+                trans.Load();
+                if (trans.Flag)
                 {
                     logger.Log("Transformer threw flag, aborting!");
                     return;
                 }
-                if (!trans.Flag && trans.Changed)
-                {
-                    trans.Save();
-                }
-                else
+                trans.Transform();
+                if (trans.Flag || !trans.Changed)
                 {
                     if (trans.Flag)
                     {
@@ -137,12 +135,10 @@ namespace ContraCrack
                     logger.Log("Transformer made no changes! Aborting save...");
                     return;
                 }
+                trans.Save();
                 logger.Log("Operation Completed!");
+
                 #endregion
-            }
-            else
-            {
-                MessageBox.Show("Please select an assembly first!");
             }
         }
     }

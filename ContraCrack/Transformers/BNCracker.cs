@@ -63,63 +63,63 @@ namespace ContraCrack.Transformers
                             && method.Parameters[3].ParameterType.FullName.Contains("Int32"))
                         {
                             DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
-                            if (tz == DialogResult.Yes)
+                            switch (tz)
                             {
-                                logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
-                                CilWorker worker;
-                                try
-                                {
-                                    worker = method.Body.CilWorker;
-                                }
-                                catch (Exception)
-                                {
-                                    MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                    Flag = true;
-                                    return;
-                                }
-                                if (method.Body.Instructions[0].Operand.ToString() != "authentication.bottingnation.com")
-                                {
-                                    logger.Log("Couldn't find auth string in method \"" + type.FullName + '.' + method.Name + "\"");
-                                    //this will only work on assemblies without string obfuscation :( will add manual override later
-                                    continue;
-                                }
-                                string returnVal = "";
-                                //We find the correct return ;)
-                                for(int i = 0; i < method.Body.Instructions.Count; i++){
-                                    if((i + 1) >= method.Body.Instructions.Count) break;
-                                    if (method.Body.Instructions[i].OpCode == OpCodes.Bne_Un_S && method.Body.Instructions[i + 1].OpCode == OpCodes.Ldstr)
+                                case DialogResult.Yes:
                                     {
-                                        returnVal = method.Body.Instructions[i + 1].Operand.ToString();
-                                        break;
+                                        logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
+                                        CilWorker worker;
+                                        try
+                                        {
+                                            worker = method.Body.CilWorker;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
+                                            Flag = true;
+                                            return;
+                                        }
+                                        if (method.Body.Instructions[0].Operand.ToString() != "authentication.bottingnation.com")
+                                        {
+                                            logger.Log("Couldn't find auth string in method \"" + type.FullName + '.' + method.Name + "\"");
+                                            //this will only work on assemblies without string obfuscation :( will add manual override later
+                                            continue;
+                                        }
+                                        string returnVal = "";
+                                        //We find the correct return ;)
+                                        for(int i = 0; i < method.Body.Instructions.Count; i++){
+                                            if((i + 1) >= method.Body.Instructions.Count) break;
+                                            if (method.Body.Instructions[i].OpCode == OpCodes.Bne_Un_S && method.Body.Instructions[i + 1].OpCode == OpCodes.Ldstr)
+                                            {
+                                                returnVal = method.Body.Instructions[i + 1].Operand.ToString();
+                                                break;
+                                            }
+                                        }
+                                        if (returnVal == "")
+                                        {
+                                            //Couldn't find return val, just skip this method
+                                            logger.Log("Couldn't find instruction pattern in method \"" + type.FullName + '.' + method.Name + "\"");
+                                            continue;
+                                        }
+                                        //We found the pattern and have the return value, now lets wipe everything and ret it
+                                        for (int i = 0; i < method.Body.Instructions.Count - 2; i++)
+                                        {
+                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
+                                        }
+                                        int count = method.Body.Instructions.Count;
+                                        method.Body.ExceptionHandlers.Clear();
+                                        method.Body.Variables.Clear();
+                                        worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldstr, returnVal));//Manual: A7u-_i4-#~=w2_O5$42-_&3_0
+                                        worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
+                                        method.Body.Simplify();
+                                        method.Body.Optimize();
+                                        Changed = true;
                                     }
-                                }
-                                if (returnVal == "")
-                                {
-                                    //Couldn't find return val, just skip this method
-                                    logger.Log("Couldn't find instruction pattern in method \"" + type.FullName + '.' + method.Name + "\"");
+                                    break;
+                                case DialogResult.No:
                                     continue;
-                                }
-                                //We found the pattern and have the return value, now lets wipe everything and ret it
-                                for (int i = 0; i < method.Body.Instructions.Count - 2; i++)
-                                {
-                                    worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
-                                }
-                                int count = method.Body.Instructions.Count;
-                                method.Body.ExceptionHandlers.Clear();
-                                method.Body.Variables.Clear();
-                                worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldstr, returnVal));//Manual: A7u-_i4-#~=w2_O5$42-_&3_0
-                                worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
-                                method.Body.Simplify();
-                                method.Body.Optimize();
-                                Changed = true;
-                            }
-                            else if (tz == DialogResult.No)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                return;
+                                default:
+                                    return;
                             }
                         }
                     }

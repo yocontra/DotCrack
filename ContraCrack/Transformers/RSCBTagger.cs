@@ -51,31 +51,29 @@ namespace ContraCrack.Transformers
             {
                 if (type.Name != "<Module>")
                 {
-                    foreach (MethodDefinition method in type.Methods)
+                    foreach (MethodDefinition method in
+                        type.Methods.Cast<MethodDefinition>().Where(method => method == assembly.EntryPoint))
                     {
-                        if (method == assembly.EntryPoint)
+                        logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
+                        CilWorker worker;
+                        try
                         {
-                            logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
-                            CilWorker worker;
-                            try
-                            {
-                                worker = method.Body.CilWorker;
-                            }
-                            catch (Exception)
-                            {
-                                MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                Flag = true;
-                                return;
-                            }
-                            MethodInfo showMessageMethod = typeof(MessageBox).GetMethod("Show", new[] { typeof(string) });
-                            MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
-                            Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
-                            Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
-                            worker.InsertBefore(method.Body.Instructions[0], insertSentence);
-                            worker.InsertAfter(insertSentence, callShowMessage);
-                            worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
-                            Changed = true;
+                            worker = method.Body.CilWorker;
                         }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
+                            Flag = true;
+                            return;
+                        }
+                        MethodInfo showMessageMethod = typeof(MessageBox).GetMethod("Show", new[] { typeof(string) });
+                        MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
+                        Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
+                        Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
+                        worker.InsertBefore(method.Body.Instructions[0], insertSentence);
+                        worker.InsertAfter(insertSentence, callShowMessage);
+                        worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
+                        Changed = true;
                     }
                 }
             }

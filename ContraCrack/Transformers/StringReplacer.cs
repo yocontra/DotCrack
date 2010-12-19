@@ -56,34 +56,32 @@ namespace ContraCrack.Transformers
             {
                 if (type.Name != "<Module>")
                 {
-                    foreach (MethodDefinition method in type.Methods)
+                    foreach (MethodDefinition method in
+                        type.Methods.Cast<MethodDefinition>().Where(method => method.HasBody))
                     {
-                        if (method.HasBody)
+                        CilWorker worker;
+                        try
                         {
-                                CilWorker worker;
-                                try
-                                {
-                                    worker = method.Body.CilWorker;
-                                }
-                                catch (Exception)
-                                {
-                                    MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                    Flag = true;
-                                    return;
-                                }
-                                for (int i = 0; i < method.Body.Instructions.Count; i++)
-                                {
-                                    if(method.Body.Instructions[i].OpCode == OpCodes.Ldstr
-                                        && method.Body.Instructions[i].Operand.ToString().Contains(toChange)){
-                                            string oldval = method.Body.Instructions[i].Operand.ToString();
-                                            string newval = oldval.Replace(toChange, replacement);
-                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldstr, newval));
-                                            logger.Log("Replaced  \"" + oldval 
-                                                + "\" with \"" + newval + "\" in \"" + type.FullName + '.' + method.Name + "\"");
-                                    }
-                                }
-                                Changed = true;
+                            worker = method.Body.CilWorker;
                         }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
+                            Flag = true;
+                            return;
+                        }
+                        for (int i = 0; i < method.Body.Instructions.Count; i++)
+                        {
+                            if(method.Body.Instructions[i].OpCode == OpCodes.Ldstr
+                               && method.Body.Instructions[i].Operand.ToString().Contains(toChange)){
+                                   string oldval = method.Body.Instructions[i].Operand.ToString();
+                                   string newval = oldval.Replace(toChange, replacement);
+                                   worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldstr, newval));
+                                   logger.Log("Replaced  \"" + oldval 
+                                              + "\" with \"" + newval + "\" in \"" + type.FullName + '.' + method.Name + "\"");
+                               }
+                        }
+                        Changed = true;
                     }
                 }
             }
