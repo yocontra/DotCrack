@@ -41,7 +41,7 @@
             // 
             // crackButton
             // 
-            this.crackButton.Location = new System.Drawing.Point(197, 39);
+            this.crackButton.Location = new System.Drawing.Point(262, 39);
             this.crackButton.Name = "crackButton";
             this.crackButton.Size = new System.Drawing.Size(75, 23);
             this.crackButton.TabIndex = 0;
@@ -52,7 +52,7 @@
             // fileSelectLabel
             // 
             this.fileSelectLabel.AutoSize = true;
-            this.fileSelectLabel.Location = new System.Drawing.Point(13, 16);
+            this.fileSelectLabel.Location = new System.Drawing.Point(10, 15);
             this.fileSelectLabel.Name = "fileSelectLabel";
             this.fileSelectLabel.Size = new System.Drawing.Size(29, 13);
             this.fileSelectLabel.TabIndex = 1;
@@ -61,14 +61,14 @@
             // fileSelectTextBox
             // 
             this.fileSelectTextBox.Enabled = false;
-            this.fileSelectTextBox.Location = new System.Drawing.Point(48, 13);
+            this.fileSelectTextBox.Location = new System.Drawing.Point(45, 12);
             this.fileSelectTextBox.Name = "fileSelectTextBox";
-            this.fileSelectTextBox.Size = new System.Drawing.Size(143, 20);
+            this.fileSelectTextBox.Size = new System.Drawing.Size(211, 20);
             this.fileSelectTextBox.TabIndex = 3;
             // 
             // fileSelectButton
             // 
-            this.fileSelectButton.Location = new System.Drawing.Point(197, 10);
+            this.fileSelectButton.Location = new System.Drawing.Point(262, 10);
             this.fileSelectButton.Name = "fileSelectButton";
             this.fileSelectButton.Size = new System.Drawing.Size(75, 23);
             this.fileSelectButton.TabIndex = 4;
@@ -83,7 +83,7 @@
             this.crackLogTextBox.Name = "crackLogTextBox";
             this.crackLogTextBox.ReadOnly = true;
             this.crackLogTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.crackLogTextBox.Size = new System.Drawing.Size(259, 211);
+            this.crackLogTextBox.Size = new System.Drawing.Size(324, 211);
             this.crackLogTextBox.TabIndex = 5;
             // 
             // taskComboBox
@@ -96,7 +96,7 @@
             "ENCracker",
             "TBNCracker",
             "BNCracker"});
-            this.taskComboBox.Location = new System.Drawing.Point(48, 39);
+            this.taskComboBox.Location = new System.Drawing.Point(113, 41);
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(143, 21);
             this.taskComboBox.TabIndex = 6;
@@ -104,7 +104,7 @@
             // taskLabel
             // 
             this.taskLabel.AutoSize = true;
-            this.taskLabel.Location = new System.Drawing.Point(8, 44);
+            this.taskLabel.Location = new System.Drawing.Point(73, 44);
             this.taskLabel.Name = "taskLabel";
             this.taskLabel.Size = new System.Drawing.Size(34, 13);
             this.taskLabel.TabIndex = 7;
@@ -119,7 +119,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 291);
+            this.ClientSize = new System.Drawing.Size(349, 291);
             this.Controls.Add(this.taskLabel);
             this.Controls.Add(this.taskComboBox);
             this.Controls.Add(this.crackLogTextBox);

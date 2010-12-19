@@ -30,6 +30,11 @@ namespace ContraCrack.Util
         }
         public static MethodDefinition appendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
+            int count = inputMethod.Body.Instructions.Count;
+            if (count > 0)
+            {
+                inputMethod.Body.CilWorker.Remove(inputMethod.Body.Instructions[count - 1]);
+            }
             for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
             {
                 inputMethod.Body.CilWorker.Append(appendMethod.Body.Instructions[x]);

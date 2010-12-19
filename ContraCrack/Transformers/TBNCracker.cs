@@ -58,20 +58,67 @@ namespace ContraCrack.Transformers
                         #region remove MyApplication_Startup
                         if (method.Name == "MyApplication_Startup")
                         {
-                            logger.Log("Removing startup code");
-                            method.Body.Instructions[0].OpCode = OpCodes.Ret;
-                            changed = true;
+                            DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" contains startup code. Would you like to wipe it?", "Ay Papi!");
+                            if (tz == DialogResult.Yes)
+                            {
+                                logger.Log("Removing startup code");
+                                method.Body.Instructions[0].OpCode = OpCodes.Ret;
+                                changed = true;
+                            }
                         }
                         #endregion
-                        #region patch authform constructor
+                        #region patch authform_load
+                        //this works but the auth form pops up briefly.
                         if (method.HasBody && !method.IsAbstract
                             && !method.IsConstructor
                             && method.ReturnType.ReturnType.FullName.Contains("Void"))
                         {
-                            //Gets the contents of the button click method (where it returns the dialogresult and closes)
-                            //and append it to the end of the form constructor.
-                            //still not working, see notes below.
-                            //maybe move the code into form_load instead of the constructor
+                            if (method.Body.Instructions.Count >= 6
+                                && method.Parameters.Count == 2
+                                && method.Body.Instructions[0].OpCode == OpCodes.Ldarg_0
+                                && method.Body.Instructions[1].OpCode == OpCodes.Ldc_I4_1
+                                && method.Body.Instructions[2].OpCode == OpCodes.Callvirt
+                                && method.Body.Instructions[3].OpCode == OpCodes.Ldarg_0
+                                && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
+                                && method.Body.Instructions[5].OpCode == OpCodes.Ret)
+                            {
+                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria.\r\n Crack it's Owner's form load?", "Ay Papi!");
+                                if (tz == DialogResult.Yes)
+                                {
+                                    MethodDefinition construct = type.Constructors[0];
+                                    MethodReference formload = null;
+                                    for (int y = 0; y < construct.Body.Instructions.Count; y++)
+                                    {
+                                        if (construct.Body.Instructions[y].OpCode == OpCodes.Ldvirtftn)
+                                        {
+                                            formload = (MethodReference)construct.Body.Instructions[y].Operand;
+                                            break;
+                                        }
+                                    }
+                                    if (formload != null)
+                                    {
+                                        logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + formload.Name + "\"");
+                                        MethodDefinition formloadDef = type.Methods.GetMethod(formload.Name)[0];
+                                        formloadDef.Body.Instructions.Clear();
+                                        formloadDef.appendMethod(method);
+                                        changed = true;
+                                    }
+                                    else
+                                    {
+                                        logger.Log("Found buttonClick pattern but could not find form_load in form constructor.");
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                        #region patch authform constructor
+                        //Gets the contents of the button click method (where it returns the dialogresult and closes)
+                        //and append it to the end of the form constructor.
+                        //This shit doesn't work, apparently you can't have this.Close() in a constructor.
+                        if (method.HasBody && !method.IsAbstract
+                            && !method.IsConstructor
+                            && method.ReturnType.ReturnType.FullName.Contains("Void"))
+                        {
                             if (method.Body.Instructions.Count >= 6
                                 && method.Parameters.Count == 2
                                 && method.Body.Instructions[0].OpCode == OpCodes.Ldarg_0
@@ -88,29 +135,21 @@ namespace ContraCrack.Transformers
                                     int count = method.Body.Instructions.Count;
 
                                     MethodDefinition newdef = type.Constructors[0];
-                                    newdef.Body.CilWorker.Remove(newdef.Body.Instructions[newdef.Body.Instructions.Count - 1]); //Nop out the ret so we can inject our return code
                                     type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
                                     type.Constructors[0] = newdef.appendMethod(method);
                                     type.Constructors[0].Body.Optimize();
                                     changed = true;
                                 }
-                                else if (tz == DialogResult.No)
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    return;
-                                }
                             }
+                        }
                         #endregion
                         #region patch initializecomponent
-                            if (method.HasBody && !method.IsAbstract
+                        //This enables everything on the form
+                        if (method.HasBody && !method.IsAbstract
                                 && !method.IsConstructor
                                 && method.IsPrivate
                                 && method.ReturnType.ReturnType.FullName.Contains("Void")
                                 && method.Parameters.Count == 0
-                                //These next two lines should make sure it is an initializecomponent :)
                                 && method.Body.Variables.Count >= 1
                                 && method.Body.Variables[0].VariableType.FullName.ToString().Contains("ComponentResourceManager"))
                             {
@@ -143,21 +182,12 @@ namespace ContraCrack.Transformers
                                     method.Body.Optimize();
                                     changed = true;
                                 }
-                                else if (tz == DialogResult.No)
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    return;
-                                }
                             }
                             #endregion
                         }
                     }
                 }
             }
-        }
         public void transform2()
         {
             logger.Log("Starting Transformer...");
@@ -186,7 +216,6 @@ namespace ContraCrack.Transformers
                                 {
                                     if (method.Body.Instructions.Count <= (i + 1)) break;
                                     //Enabled FUCKING EVERYTHING!!!
-
                                     if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
                                         && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
                                         && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
