@@ -16,8 +16,8 @@ namespace ContraCrack.Transformers
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        bool flag = false;
-        bool changed = false;
+        public bool flag { get; set; }
+        public bool changed { get; set; }
 
         public ENCracker(string fileLoc)
         {
@@ -28,7 +28,6 @@ namespace ContraCrack.Transformers
         public void load()
         {
             logger.Log("Loading Assembly...");
-            if (flag) return;
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
@@ -47,7 +46,6 @@ namespace ContraCrack.Transformers
         }
         public void transform()
         {
-            if (flag) return;
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
             {
@@ -106,12 +104,6 @@ namespace ContraCrack.Transformers
         }
         public void save()
         {
-            if (flag) return;
-            if (!changed)
-            {
-                logger.Log("No changes made, skipping save.");
-                return;
-            }
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);
         }

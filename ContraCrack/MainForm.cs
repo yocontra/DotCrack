@@ -103,10 +103,46 @@ namespace ContraCrack
                         MessageBox.Show("No task selected, please pick one!");
                         return;
                 }
-                trans.load();
-                trans.transform();
-                trans.save();
+                #region Run transformer/check for flags
+                //This is way fucking messy but it cleans up code within the transformers
+                trans.flag = false;
+                if (!trans.flag)
+                {
+                    trans.load();
+                }
+                else
+                {
+                    logger.Log("Transformer threw flag, aborting!");
+                    return;
+                }
+                if (!trans.flag)
+                {
+                    trans.transform();
+                }
+                else
+                {
+                    logger.Log("Transformer threw flag, aborting!");
+                    return;
+                }
+                if (!trans.flag && trans.changed)
+                {
+                    trans.save();
+                }
+                else
+                {
+                    if (trans.flag)
+                    {
+                        logger.Log("Transformer threw flag, aborting!");
+                        return;
+                    }
+                    else
+                    {
+                        logger.Log("Transformer made no changes! Aborting save...");
+                        return;
+                    }
+                }
                 logger.Log("Operation Completed!");
+                #endregion
             }
             else
             {

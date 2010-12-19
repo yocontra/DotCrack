@@ -16,8 +16,8 @@ namespace ContraCrack.Transformers
         string assemblyLocation;
         string newLocation;
         AssemblyDefinition assembly;
-        bool flag = false;
-        bool changed = false;
+        public bool flag { get; set; }
+        public bool changed { get; set; }
 
         public TBNCracker(string fileLoc)
         {
@@ -28,7 +28,6 @@ namespace ContraCrack.Transformers
         public void load()
         {
             logger.Log("Loading Assembly...");
-            if (flag) return;
             try
             {
                 assembly = AssemblyFactory.GetAssembly(assemblyLocation);
@@ -45,19 +44,10 @@ namespace ContraCrack.Transformers
                 assembly.removeStrongName();
             }
         }
-        private MethodDefinition appendMethod(MethodDefinition inputMethod, MethodDefinition appendMethod)
-        {
-            for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
-            {
-                inputMethod.Body.CilWorker.Append(appendMethod.Body.Instructions[x]);
-            }
-            return inputMethod;
-        }
         public void transform()
         {
-            transform2();
-            return;
-            if (flag) return;
+            //transform2();
+            //return;
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
             {
@@ -65,7 +55,15 @@ namespace ContraCrack.Transformers
                 {
                     foreach (MethodDefinition method in type.Methods)
                     {
-                        #region patch dialogresult return
+                        #region remove MyApplication_Startup
+                        if (method.Name == "MyApplication_Startup")
+                        {
+                            logger.Log("Removing startup code");
+                            method.Body.Instructions[0].OpCode = OpCodes.Ret;
+                            changed = true;
+                        }
+                        #endregion
+                        #region patch authform constructor
                         if (method.HasBody && !method.IsAbstract
                             && !method.IsConstructor
                             && method.ReturnType.ReturnType.FullName.Contains("Void"))
@@ -89,27 +87,10 @@ namespace ContraCrack.Transformers
                                     logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
                                     int count = method.Body.Instructions.Count;
 
-                                    Instruction ins1 = method.Body.Instructions[count - 2];//Save these for later
-                                    Instruction ins2 = method.Body.Instructions[count - 3];
-                                    //Create a ghost method that closes the form
-                                    TypeReference returnVoidTR = assembly.MainModule.Import(typeof(void));
-                                    MethodDefinition closeDef = new MethodDefinition("CloseForm", Mono.Cecil.MethodAttributes.Public, returnVoidTR);
-                                    closeDef.Body.CilWorker.Append(ins1);
-                                    closeDef.Body.CilWorker.Append(ins2);
-                                    closeDef.Body.CilWorker.Append(closeDef.Body.CilWorker.Create(OpCodes.Ret));
-                                    //Getting an error here because I add the method to the method collection
-                                    //while the foreach is running. will fix later
-                                    type.Methods.Add(closeDef);
-
-                                    //Deletes ldarg.0 and replaces this.Close() with this.CloseForm()
-                                    method.Body.CilWorker.Remove(method.Body.Instructions[count - 2]);
-                                    Instruction newInstr = type.Constructors[0].Body.CilWorker.Create(OpCodes.Callvirt, closeDef);
-                                    method.Body.CilWorker.Replace(method.Body.Instructions[count - 3], newInstr);
-
                                     MethodDefinition newdef = type.Constructors[0];
                                     newdef.Body.CilWorker.Remove(newdef.Body.Instructions[newdef.Body.Instructions.Count - 1]); //Nop out the ret so we can inject our return code
                                     type.Constructors[0] = Util.Cecil.appendMethod(newdef, method);
-                                    type.Constructors[0] = appendMethod(newdef, method);
+                                    type.Constructors[0] = newdef.appendMethod(method);
                                     type.Constructors[0].Body.Optimize();
                                     changed = true;
                                 }
@@ -123,7 +104,7 @@ namespace ContraCrack.Transformers
                                 }
                             }
                         #endregion
-                            #region patch initializecomponent
+                        #region patch initializecomponent
                             if (method.HasBody && !method.IsAbstract
                                 && !method.IsConstructor
                                 && method.IsPrivate
@@ -172,54 +153,6 @@ namespace ContraCrack.Transformers
                                 }
                             }
                             #endregion
-                            //Commented this out because it is nigga-buggy and not really needed. if you can figure it out
-                            //props to you brahski and you should integrate it with the intialize patcher instead of
-                            //being likes its own thing
-                            #region auth method
-                            /*
-                            if (method.HasBody 
-                                && method.Name.EndsWith("_Load"))
-                                //Needs a better pattern than this lol
-                            {
-                                DialogResult tz = Interface.getYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
-                                 if (tz == DialogResult.Yes)
-                                {
-                                    logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
-                                    CilWorker worker;
-                                    try
-                                    {
-                                        worker = method.Body.CilWorker;
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                        flag = true;
-                                        return;
-                                    }
-                                    for (int i = 0; i < method.Body.Instructions.Count; i++)
-                                    {
-                                        if (method.Body.Instructions.Count <= (i + 1)) break;
-                                        //Enabled FUCKING EVERYTHING!!!
-                                        if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
-                                            && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
-                                            && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
-                                        {
-                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldc_I4_1));
-                                        }
-                                    }
-                                    method.Body.Optimize();
-                                    changed = true;
-                                }
-                                else if (tz == DialogResult.No)
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    return;
-                                }
-                            }*/
-                            #endregion
                         }
                     }
                 }
@@ -227,7 +160,6 @@ namespace ContraCrack.Transformers
         }
         public void transform2()
         {
-            if (flag) return;
             logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in assembly.MainModule.Types)
             {
@@ -292,12 +224,6 @@ namespace ContraCrack.Transformers
         }
         public void save()
         {
-            if (flag) return;
-            if (!changed)
-            {
-                logger.Log("No changes made, skipping save.");
-                return;
-            }
             logger.Log("Saving Assembly...");
             AssemblyFactory.SaveAssembly(assembly, newLocation);
         }

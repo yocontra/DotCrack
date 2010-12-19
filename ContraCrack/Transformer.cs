@@ -10,6 +10,8 @@ namespace ContraCrack
 {
     interface Transformer
     {
+        bool flag { get; set; }
+        bool changed { get; set; }
         void load();
         void transform();
         void save();

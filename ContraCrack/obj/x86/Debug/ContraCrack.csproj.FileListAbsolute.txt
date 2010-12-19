@@ -34,3 +34,4 @@ D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resou
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
+F:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe.config
