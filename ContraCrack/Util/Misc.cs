@@ -7,7 +7,6 @@ namespace ContraCrack.Util
 {
     static class Misc
     {
-        public const string MSILErrorMessage = "Issue reading MSIL. Assembly is obfuscated or corrupt.";
         public static string GetNewFileName(this string originalFile)
         {
             return originalFile.Replace(".exe", "-new.exe");

@@ -24,7 +24,7 @@ namespace ContraCrack.Transformers
         public StringReplacer(string fileLoc)
         {
             Logger = new LogHandler(GetType().Name);
-            Logger.Log(Logger.Identifier + " Started!");
+            Logger.Log(Logger.Identifier + " Initialized.");
             OriginalLocation = fileLoc;
             NewLocation = OriginalLocation.GetNewFileName();
         }
@@ -32,11 +32,12 @@ namespace ContraCrack.Transformers
         {
             try
             {
-                OriginalAssembly = AssemblyFactory.GetAssembly(OriginalLocation);
+                OriginalAssembly = AssemblyDefinition.ReadAssembly(OriginalLocation);
+                WorkingAssembly = OriginalAssembly;
             }
-            catch (Exception)
+            catch
             {
-                Logger.Log(Util.Constants.AssemblyErrorMessage);
+                Logger.Log(Constants.AssemblyErrorMessage);
                 HasIssue = true;
                 return;
             }
@@ -44,6 +45,10 @@ namespace ContraCrack.Transformers
             {
                 Logger.Log("Removing Strongname Key...");
                 WorkingAssembly.RemoveStrongName();
+            } 
+            else
+            {
+                Logger.Log("No Strongname Found!");
             }
             Logger.Log("Gathering User Input...");
             toChange = Interface.GetUserInputDialog("What string are you replacing?", "Settings", "example.com");
@@ -51,21 +56,20 @@ namespace ContraCrack.Transformers
         }
         public void Transform()
         {
-            Logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in
-                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
+                WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
                     foreach (MethodDefinition method in
-                        type.Methods.Cast<MethodDefinition>().Where(method => method.HasBody))
+                        type.Methods.Where(method => method.HasBody))
                     {
-                        CilWorker worker;
+                        ILProcessor worker;
                         try
                         {
-                            worker = method.Body.CilWorker;
+                            worker = method.Body.GetILProcessor();
                         }
-                        catch (Exception)
+                        catch
                         {
-                            Logger.Log(Util.Constants.MSILErrorMessage);
+                            Logger.Log(Constants.MSILErrorMessage);
                             HasIssue = true;
                             return;
                         }
@@ -85,7 +89,7 @@ namespace ContraCrack.Transformers
         }
         public void Save()
         {
-            AssemblyFactory.SaveAssembly(WorkingAssembly, NewLocation);
+            WorkingAssembly.Write(NewLocation);
         }
     }
 }

@@ -10,6 +10,6 @@ namespace ContraCrack.Util
     {
         public const string MSILErrorMessage = "Issue reading MSIL. Assembly is obfuscated or corrupt.";
         public const string AssemblyErrorMessage = "Error loading assembly. Assembly is obfuscated, packed, or corrupt";
-        public const TargetRuntime DefaultRuntime = TargetRuntime.NET_2_0;
+        public const TargetRuntime DefaultRuntime = TargetRuntime.Net_4_0;
     }
 }

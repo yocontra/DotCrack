@@ -82,9 +82,10 @@
             this.crackLogTextBox.Multiline = true;
             this.crackLogTextBox.Name = "crackLogTextBox";
             this.crackLogTextBox.ReadOnly = true;
-            this.crackLogTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.crackLogTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.crackLogTextBox.Size = new System.Drawing.Size(324, 211);
             this.crackLogTextBox.TabIndex = 5;
+            this.crackLogTextBox.WordWrap = false;
             // 
             // taskComboBox
             // 

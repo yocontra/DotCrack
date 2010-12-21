@@ -4,3 +4,4 @@
 2. Clean up code! Dirty mess atm. Once invalid opcodes are taken care of, 
 	most of the exception handlers can be removed (thank god)
 3. Add some more generic transformers that aren't specifically for the botting scene
+4. MainForm needs to determine if WorkingAssembly != OriginalAssembly before it saves

@@ -20,29 +20,20 @@ namespace ContraCrack.Util
         {
             asm.Name.PublicKey = new byte[0];
             asm.Name.PublicKeyToken = new byte[0];
-            asm.Name.Flags = AssemblyFlags.SideBySideCompatible;
+            asm.Name.IsSideBySideCompatible = true;
         }
         public static MethodDefinition AppendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
             int count = inputMethod.Body.Instructions.Count;
             if (count > 0)
             {
-                inputMethod.Body.CilWorker.Remove(inputMethod.Body.Instructions[count - 1]);
+                inputMethod.Body.GetILProcessor().Remove(inputMethod.Body.Instructions[count - 1]);
             }
             for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
             {
-                inputMethod.Body.CilWorker.Append(appendMethod.Body.Instructions[x]);
+                inputMethod.Body.GetILProcessor().Append(appendMethod.Body.Instructions[x]);
             }
             return inputMethod;
-        }
-        public static MethodReference GetGenericMethodRef(MethodReference method, TypeReference declaringType)
-        {
-            var reference = new MethodReference(method.Name, declaringType, method.ReturnType.ReturnType, method.HasThis, method.ExplicitThis, MethodCallingConvention.Generic);
-            foreach (ParameterDefinition parameter in method.Parameters)
-            {
-                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
-            }
-            return reference;
         }
         //This is deobfuscation stuff, I'm hoping to turn this into an invalid opcode remover/renamer too
         public static void RemoveIllegalConstruct(MethodDefinition method)

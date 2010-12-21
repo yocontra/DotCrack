@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ContraCrack.Util;
+using Mono.Cecil;
 
 namespace ContraCrack
 {
@@ -125,8 +126,8 @@ namespace ContraCrack
                 }
                 _mainLogger.Log("Running Transformer...");
                 trans.Transform();
-                //This needs to be fixed to distinguish if workingasm has been edited
-                if (trans.HasIssue || (trans.WorkingAssembly.GetHashCode() == trans.OriginalAssembly.GetHashCode()))
+                //This needs to be fixed to distinguish if workingassembly is different than original. moduledefinition.image maybe?
+                if (trans.HasIssue)
                 {
                     if (trans.HasIssue)
                     {
