@@ -12,49 +12,49 @@ namespace ContraCrack.Transformers
 {
     class RSCBTagger : ITransformer
     {
-        LogHandler logger = new LogHandler("RSCBTagger");
-        string assemblyLocation;
-        string newLocation;
-        AssemblyDefinition assembly;
-        public bool Flag { get; set; }
-        public bool Changed { get; set; }
+        public LogHandler Logger { get; set; }
+        public string OriginalLocation { get; set; }
+        public string NewLocation { get; set; }
+        public AssemblyDefinition OriginalAssembly { get; set; }
+        public AssemblyDefinition WorkingAssembly { get; set; }
+        public bool HasIssue { get; set; }
 
         public RSCBTagger(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
-            assemblyLocation = fileLoc;
-            newLocation = fileLoc.Replace(".exe", "-tagged.exe");
+            Logger = new LogHandler(GetType().Name);
+            Logger.Log(Logger.Identifier + " Started!");
+            OriginalLocation = fileLoc;
+            NewLocation = OriginalLocation.GetNewFileName();
         }
         public void Load()
         {
-            logger.Log("Loading Assembly...");
             try
             {
-                assembly = AssemblyFactory.GetAssembly(assemblyLocation);
+                OriginalAssembly = AssemblyFactory.GetAssembly(OriginalLocation);
+                WorkingAssembly = OriginalAssembly;
             }
             catch (Exception)
             {
-                MessageBox.Show("Error loading assembly.");
-                Flag = true;
+                Logger.Log(Util.Constants.AssemblyErrorMessage);
+                HasIssue = true;
                 return;
             }
-            if (assembly.HasStrongName())
+            if (WorkingAssembly.HasStrongName())
             {
-                logger.Log("Removing Strongname Key...");
-                assembly.RemoveStrongName();
+                Logger.Log("Removing Strongname Key...");
+                WorkingAssembly.RemoveStrongName();
             }
         }
         public void Transform()
         {
-            logger.Log("Starting Transformer...");
-            foreach (TypeDefinition type in assembly.MainModule.Types)
+            Logger.Log("Starting Transformer...");
+            foreach (TypeDefinition type in
+                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
             {
-                if (type.Name != "<Module>")
-                {
                     foreach (MethodDefinition method in
-                        type.Methods.Cast<MethodDefinition>().Where(method => method == assembly.EntryPoint))
+                        type.Methods.Cast<MethodDefinition>().Where(method => method == WorkingAssembly.EntryPoint))
                     {
-                        logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
+                        Logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
                         CilWorker worker;
                         try
                         {
@@ -62,26 +62,23 @@ namespace ContraCrack.Transformers
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                            Flag = true;
+                            Logger.Log(Util.Constants.MSILErrorMessage);
+                            HasIssue = true;
                             return;
                         }
                         MethodInfo showMessageMethod = typeof(MessageBox).GetMethod("Show", new[] { typeof(string) });
-                        MethodReference showMessageBox = assembly.MainModule.Import(showMessageMethod);
+                        MethodReference showMessageBox = WorkingAssembly.MainModule.Import(showMessageMethod);
                         Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
                         Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
                         worker.InsertBefore(method.Body.Instructions[0], insertSentence);
                         worker.InsertAfter(insertSentence, callShowMessage);
                         worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
-                        Changed = true;
                     }
-                }
             }
         }
         public void Save()
         {
-            logger.Log("Saving Assembly...");
-            AssemblyFactory.SaveAssembly(assembly, newLocation);
+            AssemblyFactory.SaveAssembly(WorkingAssembly, NewLocation);
         }
     }
 }

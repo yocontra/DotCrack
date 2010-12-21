@@ -12,50 +12,49 @@ namespace ContraCrack.Transformers
 {
     class StringReplacer : ITransformer
     {
-        LogHandler logger = new LogHandler("StringReplacer");
-        string assemblyLocation;
-        string newLocation;
-        AssemblyDefinition assembly;
-        public bool Flag { get; set; }
-        public bool Changed { get; set; }
+        public LogHandler Logger { get; set; }
+        public string OriginalLocation { get; set; }
+        public string NewLocation { get; set; }
+        public AssemblyDefinition OriginalAssembly { get; set; }
+        public AssemblyDefinition WorkingAssembly { get; set; }
+        public bool HasIssue { get; set; }
         string toChange = "";
         string replacement = "";
 
         public StringReplacer(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
-            assemblyLocation = fileLoc;
-            newLocation = fileLoc.Replace(".exe", "-cracked.exe");
+            Logger = new LogHandler(GetType().Name);
+            Logger.Log(Logger.Identifier + " Started!");
+            OriginalLocation = fileLoc;
+            NewLocation = OriginalLocation.GetNewFileName();
         }
         public void Load()
         {
-            logger.Log("Loading Assembly...");
             try
             {
-                assembly = AssemblyFactory.GetAssembly(assemblyLocation);
+                OriginalAssembly = AssemblyFactory.GetAssembly(OriginalLocation);
             }
             catch (Exception)
             {
-                MessageBox.Show("Error loading assembly.");
-                Flag = true;
+                Logger.Log(Util.Constants.AssemblyErrorMessage);
+                HasIssue = true;
                 return;
             }
-            if (assembly.HasStrongName())
+            if (WorkingAssembly.HasStrongName())
             {
-                logger.Log("Removing Strongname Key...");
-                assembly.RemoveStrongName();
+                Logger.Log("Removing Strongname Key...");
+                WorkingAssembly.RemoveStrongName();
             }
-            logger.Log("Gathering User Input...");
+            Logger.Log("Gathering User Input...");
             toChange = Interface.GetUserInputDialog("What string are you replacing?", "Settings", "example.com");
             replacement = Interface.GetUserInputDialog("What are you replacing it with?", "Settings", "example.net");
         }
         public void Transform()
         {
-            logger.Log("Starting Transformer...");
-            foreach (TypeDefinition type in assembly.MainModule.Types)
+            Logger.Log("Starting Transformer...");
+            foreach (TypeDefinition type in
+                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
             {
-                if (type.Name != "<Module>")
-                {
                     foreach (MethodDefinition method in
                         type.Methods.Cast<MethodDefinition>().Where(method => method.HasBody))
                     {
@@ -66,8 +65,8 @@ namespace ContraCrack.Transformers
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                            Flag = true;
+                            Logger.Log(Util.Constants.MSILErrorMessage);
+                            HasIssue = true;
                             return;
                         }
                         for (int i = 0; i < method.Body.Instructions.Count; i++)
@@ -77,19 +76,16 @@ namespace ContraCrack.Transformers
                                    string oldval = method.Body.Instructions[i].Operand.ToString();
                                    string newval = oldval.Replace(toChange, replacement);
                                    worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldstr, newval));
-                                   logger.Log("Replaced  \"" + oldval 
+                                   Logger.Log("Replaced  \"" + oldval 
                                               + "\" with \"" + newval + "\" in \"" + type.FullName + '.' + method.Name + "\"");
                                }
                         }
-                        Changed = true;
                     }
-                }
             }
         }
         public void Save()
         {
-            logger.Log("Saving Assembly...");
-            AssemblyFactory.SaveAssembly(assembly, newLocation);
+            AssemblyFactory.SaveAssembly(WorkingAssembly, NewLocation);
         }
     }
 }

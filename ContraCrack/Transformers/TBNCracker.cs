@@ -12,47 +12,44 @@ namespace ContraCrack.Transformers
 {
     class TBNCracker : ITransformer
     {
-        LogHandler logger = new LogHandler("TBNCracker");
-        string assemblyLocation;
-        string newLocation;
-        AssemblyDefinition assembly;
-        public bool Flag { get; set; }
-        public bool Changed { get; set; }
+        public LogHandler Logger { get; set; }
+        public string OriginalLocation { get; set; }
+        public string NewLocation { get; set; }
+        public AssemblyDefinition OriginalAssembly { get; set; }
+        public AssemblyDefinition WorkingAssembly { get; set; }
+        public bool HasIssue { get; set; }
 
         public TBNCracker(string fileLoc)
         {
-            logger.Log(logger.Identifier + " Started!");
-            assemblyLocation = fileLoc;
-            newLocation = fileLoc.Replace(".exe", "-cracked.exe");
+            Logger = new LogHandler(GetType().Name);
+            Logger.Log(Logger.Identifier + " Started!");
+            OriginalLocation = fileLoc;
+            NewLocation = OriginalLocation.GetNewFileName();
         }
         public void Load()
         {
-            logger.Log("Loading Assembly...");
             try
             {
-                assembly = AssemblyFactory.GetAssembly(assemblyLocation);
+                OriginalAssembly = AssemblyFactory.GetAssembly(OriginalLocation);
+                WorkingAssembly = OriginalAssembly;
             }
-            catch (Exception)
+            catch
             {
-                MessageBox.Show("Error loading assembly.");
-                Flag = true;
+                Logger.Log(Util.Constants.AssemblyErrorMessage);
+                HasIssue = true;
                 return;
             }
-            if (assembly.HasStrongName())
+            if (WorkingAssembly.HasStrongName())
             {
-                logger.Log("Removing Strongname Key...");
-                assembly.RemoveStrongName();
+                Logger.Log("Removing Strongname Key...");
+                WorkingAssembly.RemoveStrongName();
             }
         }
         public void Transform()
         {
-            //transform2();
-            //return;
-            logger.Log("Starting Transformer...");
-            foreach (TypeDefinition type in assembly.MainModule.Types)
+            foreach (TypeDefinition type in
+                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
             {
-                if (type.Name != "<Module>")
-                {
                     foreach (MethodDefinition method in type.Methods)
                     {
                         #region remove MyApplication_Startup
@@ -63,9 +60,8 @@ namespace ContraCrack.Transformers
                             switch (tz)
                             {
                                 case DialogResult.Yes:
-                                    logger.Log("Removing startup code");
+                                    Logger.Log("Removing startup code");
                                     method.Body.Instructions[0].OpCode = OpCodes.Ret;
-                                    Changed = true;
                                     break;
                             }
                         }
@@ -103,15 +99,14 @@ namespace ContraCrack.Transformers
                                             }
                                             if (formload != null)
                                             {
-                                                logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + formload.Name + "\"");
+                                                Logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + formload.Name + "\"");
                                                 MethodDefinition formloadDef = type.Methods.GetMethod(formload.Name)[0];
                                                 formloadDef.Body.Instructions.Clear();
                                                 formloadDef.AppendMethod(method);
-                                                Changed = true;
                                             }
                                             else
                                             {
-                                                logger.Log("Found buttonClick pattern but could not find form_load in form constructor.");
+                                                Logger.Log("Found buttonClick pattern but could not find form_load in form constructor.");
                                             }
                                         }
                                         break;
@@ -141,11 +136,10 @@ namespace ContraCrack.Transformers
                                 {
                                     case DialogResult.Yes:
                                         {
-                                            logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
+                                            Logger.Log("Injecting method contents of  \"" + type.FullName + '.' + method.Name + "\" into  \"" + type.FullName + '.' + type.Constructors[0].Name + "\"");
                                             MethodDefinition newdef = type.Constructors[0];
                                             type.Constructors[0] = newdef.AppendMethod(method);
                                             type.Constructors[0].Body.Optimize();
-                                            Changed = true;
                                         }
                                         break;
                                 }
@@ -167,7 +161,7 @@ namespace ContraCrack.Transformers
                             {
                                 case DialogResult.Yes:
                                     {
-                                        logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
+                                        Logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
                                         CilWorker worker;
                                         try
                                         {
@@ -175,8 +169,8 @@ namespace ContraCrack.Transformers
                                         }
                                         catch (Exception)
                                         {
-                                            MessageBox.Show("Issue reading MSIL. Assembly is obfuscated or corrupt.");
-                                            Flag = true;
+                                            Logger.Log(Util.Constants.MSILErrorMessage);
+                                            HasIssue = true;
                                             return;
                                         }
                                         for (int i = 0; i < method.Body.Instructions.Count; i++)
@@ -191,7 +185,6 @@ namespace ContraCrack.Transformers
                                             }
                                         }
                                         method.Body.Optimize();
-                                        Changed = true;
                                     }
                                     break;
                             }
@@ -199,23 +192,20 @@ namespace ContraCrack.Transformers
 
                         #endregion
                         }
-                    }
                 }
             }
         public void Transform2()
         {
-            logger.Log("Starting Transformer...");
             foreach (TypeDefinition type in
-                assembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
+                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
             {
                 foreach (MethodDefinition method in type.Methods)
                 {
                     #region removeapplication startup
                     if (method.Name == "MyApplication_Startup")
                     {
-                        logger.Log("Removing startup code");
+                        Logger.Log("Removing startup code");
                         method.Body.Instructions[0].OpCode = OpCodes.Ret;
-                        Changed = true;
                     }
                     #endregion
                     #region enable
@@ -225,7 +215,7 @@ namespace ContraCrack.Transformers
                         switch (tz)
                         {
                             case DialogResult.Yes:
-                                logger.Log("Enabling all Controls");
+                                Logger.Log("Enabling all Controls");
                                 for (int i = 0; i < method.Body.Instructions.Count; i++)
                                 {
                                     if (method.Body.Instructions.Count <= (i + 1)) break;
@@ -238,7 +228,6 @@ namespace ContraCrack.Transformers
                                     }
                                 }
                                 method.Body.Optimize();
-                                Changed = true;
                                 break;
                         }
                     }
@@ -253,9 +242,8 @@ namespace ContraCrack.Transformers
                         if (constructor.Body.Instructions[i].OpCode == OpCodes.Stfld &&
                             constructor.Body.Instructions[i].Operand.ToString().Contains("Form1::bS"))
                         {
-                            logger.Log("Patching " + constructor.Body.Instructions[i].Operand);
+                            Logger.Log("Patching " + constructor.Body.Instructions[i].Operand);
                             constructor.Body.Instructions[i - 1].OpCode = OpCodes.Ldc_I4_1;
-                            Changed = true;
                         }
                     }
                 }
@@ -264,8 +252,7 @@ namespace ContraCrack.Transformers
 
         public void Save()
         {
-            logger.Log("Saving Assembly...");
-            AssemblyFactory.SaveAssembly(assembly, newLocation);
+            AssemblyFactory.SaveAssembly(WorkingAssembly, NewLocation);
         }
     }
 }

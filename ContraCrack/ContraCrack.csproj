@@ -70,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Util\Constants.cs" />
     <Compile Include="Util\LogHandler.cs" />
     <Compile Include="Transformers\BNCracker.cs" />
     <Compile Include="Transformers\RSCBTagger.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Transformers\StringReplacer.cs" />
     <Compile Include="Util\Cecil.cs" />
     <Compile Include="Util\Interface.cs" />
+    <Compile Include="Util\Misc.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

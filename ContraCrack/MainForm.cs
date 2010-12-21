@@ -12,8 +12,7 @@ namespace ContraCrack
 {
     public partial class MainForm : Form
     {
-        LogHandler logger = new LogHandler("MainForm");
-        string _task = "";
+        readonly LogHandler _mainLogger = new LogHandler("MainThread");
         public MainForm()
         {
             InitializeComponent();
@@ -59,7 +58,6 @@ namespace ContraCrack
         }
         private void CrackButtonClick(object sender, EventArgs e)
         {
-            Instance._task = taskComboBox.GetItemText(Instance.taskComboBox.SelectedItem);
             Instance.taskComboBox.Enabled = false;
             Instance.crackButton.Enabled = false;
             Instance.fileSelectButton.Enabled = false;
@@ -82,7 +80,7 @@ namespace ContraCrack
             else
             {
                 ITransformer trans;
-                switch (Instance._task)
+                switch (Instance.taskComboBox.GetItemText(Instance.taskComboBox.SelectedItem))
                 {
                     case "ENCracker":
                         trans = new Transformers.ENCracker(Instance.fileSelectTextBox.Text);
@@ -112,31 +110,35 @@ namespace ContraCrack
                 #region Run transformer/check for flags
 
                 //This is way fucking messy but it cleans up code within the transformers
-                trans.Flag = false;
-                if (trans.Flag)
+                trans.HasIssue = false;
+                if (trans.HasIssue)
                 {
-                    logger.Log("Transformer threw flag, aborting!");
+                    _mainLogger.Log("Transformer has a problem, aborting!");
                     return;
                 }
+                _mainLogger.Log("Loading Assembly from " + trans.OriginalLocation);
                 trans.Load();
-                if (trans.Flag)
+                if (trans.HasIssue)
                 {
-                    logger.Log("Transformer threw flag, aborting!");
+                    _mainLogger.Log("Transformer has a problem, aborting!");
                     return;
                 }
+                _mainLogger.Log("Running Transformer...");
                 trans.Transform();
-                if (trans.Flag || !trans.Changed)
+                //This needs to be fixed to distinguish if workingasm has been edited
+                if (trans.HasIssue || (trans.WorkingAssembly.GetHashCode() == trans.OriginalAssembly.GetHashCode()))
                 {
-                    if (trans.Flag)
+                    if (trans.HasIssue)
                     {
-                        logger.Log("Transformer threw flag, aborting!");
+                        _mainLogger.Log("Transformer has a problem, aborting!");
                         return;
                     }
-                    logger.Log("Transformer made no changes! Aborting save...");
+                    _mainLogger.Log("Transformer made no changes! Aborting save!");
                     return;
                 }
+                _mainLogger.Log("Saving Assembly to " + trans.NewLocation);
                 trans.Save();
-                logger.Log("Operation Completed!");
+                _mainLogger.Log("Operation Completed!");
 
                 #endregion
             }
