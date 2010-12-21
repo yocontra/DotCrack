@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using System.Reflection;
-using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
 {
@@ -18,8 +13,8 @@ namespace ContraCrack.Transformers
         public AssemblyDefinition OriginalAssembly { get; set; }
         public AssemblyDefinition WorkingAssembly { get; set; }
         public bool HasIssue { get; set; }
-        string toChange = "";
-        string replacement = "";
+        string _toChange = "";
+        string _replacement = "";
 
         public StringReplacer(string fileLoc)
         {
@@ -51,8 +46,8 @@ namespace ContraCrack.Transformers
                 Logger.Log("No Strongname Found!");
             }
             Logger.Log("Gathering User Input...");
-            toChange = Interface.GetUserInputDialog("What string are you replacing?", "Settings", "example.com");
-            replacement = Interface.GetUserInputDialog("What are you replacing it with?", "Settings", "example.net");
+            _toChange = Interface.GetUserInputDialog("What string are you replacing?", "Settings", "example.com");
+            _replacement = Interface.GetUserInputDialog("What are you replacing it with?", "Settings", "example.net");
         }
         public void Transform()
         {
@@ -62,27 +57,13 @@ namespace ContraCrack.Transformers
                     foreach (MethodDefinition method in
                         type.Methods.Where(method => method.HasBody))
                     {
-                        ILProcessor worker;
-                        try
+                        foreach (Instruction t in method.Body.Instructions)
                         {
-                            worker = method.Body.GetILProcessor();
-                        }
-                        catch
-                        {
-                            Logger.Log(Constants.MSILErrorMessage);
-                            HasIssue = true;
-                            return;
-                        }
-                        for (int i = 0; i < method.Body.Instructions.Count; i++)
-                        {
-                            if(method.Body.Instructions[i].OpCode == OpCodes.Ldstr
-                               && method.Body.Instructions[i].Operand.ToString().Contains(toChange)){
-                                   string oldval = method.Body.Instructions[i].Operand.ToString();
-                                   string newval = oldval.Replace(toChange, replacement);
-                                   worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldstr, newval));
-                                   Logger.Log("Replaced  \"" + oldval 
-                                              + "\" with \"" + newval + "\" in \"" + type.FullName + '.' + method.Name + "\"");
-                               }
+                            if (t.OpCode != OpCodes.Ldstr || !t.Operand.ToString().Contains(_toChange)) continue;
+                            string oldval = t.Operand.ToString();
+                            string newval = oldval.Replace(_toChange, _replacement);
+                            method.Body.GetILProcessor().Replace(t, method.Body.GetILProcessor().Create(OpCodes.Ldstr, newval));
+                            Logger.Log(string.Format("Replaced  \"{0}\" with \"{1}\" in \"{2}{3}{4}\"", oldval, newval, type.FullName, '.', method.Name));
                         }
                     }
             }

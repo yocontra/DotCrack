@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
@@ -48,7 +44,7 @@ namespace ContraCrack.Transformers
         public void Transform()
         {
             foreach (TypeDefinition type in
-                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
+                WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
                     foreach (MethodDefinition method in type.Methods)
                     {
@@ -60,32 +56,17 @@ namespace ContraCrack.Transformers
                             && method.Parameters[0].ParameterType.FullName.Contains("Int32")
                             && method.Parameters[1].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" has met the search criteria. Crack it?", type.FullName, '.', method.Name), "Ay Papi!");
                             switch (tz)
                             {
                                 case DialogResult.Yes:
                                     {
-                                        Logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
-                                        ILProcessor worker;
-                                        try
-                                        {
-                                            worker = method.Body.GetILProcessor();
-                                        }
-                                        catch
-                                        {
-                                            Logger.Log(Constants.MSILErrorMessage);
-                                            HasIssue = true;
-                                            return;
-                                        }
-                                        for (int i = 0; i < method.Body.Instructions.Count; i++)
-                                        {
-                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
-                                        }
-                                        int count = method.Body.Instructions.Count;
+                                        Logger.Log(string.Format("Modifying method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
+                                        method.Body.Instructions.Clear();
                                         method.Body.ExceptionHandlers.Clear();
                                         method.Body.Variables.Clear();
-                                        worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldc_I4_1));
-                                        worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
+                                        method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ldc_I4_1));
+                                        method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ret));
                                     }
                                     break;
                             }

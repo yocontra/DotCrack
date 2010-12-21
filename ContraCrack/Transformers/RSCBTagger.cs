@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Reflection;
@@ -48,30 +45,18 @@ namespace ContraCrack.Transformers
         public void Transform()
         {
             foreach (TypeDefinition type in
-                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
+                WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
                     foreach (MethodDefinition method in
-                        type.Methods.Cast<MethodDefinition>().Where(method => method == WorkingAssembly.EntryPoint))
+                        type.Methods.Where(method => method == WorkingAssembly.EntryPoint))
                     {
-                        Logger.Log("Injecting code into entrypoint \"" + type.FullName + '.' + method.Name + "\"");
-                        ILProcessor worker;
-                        try
-                        {
-                            worker = method.Body.GetILProcessor();
-                        }
-                        catch
-                        {
-                            Logger.Log(Constants.MSILErrorMessage);
-                            HasIssue = true;
-                            return;
-                        }
-                        MethodInfo showMessageMethod = typeof(MessageBox).GetMethod("Show", new[] { typeof(string) });
-                        MethodReference showMessageBox = WorkingAssembly.MainModule.Import(showMessageMethod);
-                        Instruction insertSentence = worker.Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
-                        Instruction callShowMessage = worker.Create(OpCodes.Call, showMessageBox);
-                        worker.InsertBefore(method.Body.Instructions[0], insertSentence);
-                        worker.InsertAfter(insertSentence, callShowMessage);
-                        worker.InsertAfter(callShowMessage, worker.Create(OpCodes.Pop));
+                        Logger.Log(string.Format("Injecting code into entrypoint \"{0}{1}{2}\"", type.FullName, '.', method.Name));
+                        MethodReference showMessageBox = WorkingAssembly.MainModule.Import(typeof(MessageBox).GetMethod("Show", new[] { typeof(string) }));
+                        Instruction insertSentence = method.Body.GetILProcessor().Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
+                        Instruction callShowMessage = method.Body.GetILProcessor().Create(OpCodes.Call, showMessageBox);
+                        method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], insertSentence);
+                        method.Body.GetILProcessor().InsertAfter(insertSentence, callShowMessage);
+                        method.Body.GetILProcessor().InsertAfter(callShowMessage, method.Body.GetILProcessor().Create(OpCodes.Pop));
                     }
             }
         }

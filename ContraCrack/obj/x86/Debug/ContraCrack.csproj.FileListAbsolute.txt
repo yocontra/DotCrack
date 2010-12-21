@@ -25,3 +25,14 @@ D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resou
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
 D:\AJ\Desktop\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
+C:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe.config
+C:\ContraCrack\ContraCrack\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.MainForm.resources
+C:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.Properties.Resources.resources
+C:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe
+C:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.pdb
+C:\ContraCrack\ContraCrack\bin\Debug\Mono.Cecil.dll
+C:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
+C:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb

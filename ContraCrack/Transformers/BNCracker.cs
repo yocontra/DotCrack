@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
@@ -48,7 +44,7 @@ namespace ContraCrack.Transformers
         public void Transform()
         {
             foreach (TypeDefinition type in
-                WorkingAssembly.MainModule.Types.Cast<TypeDefinition>().Where(type => type.Name != "<Module>"))
+                WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
                     foreach (MethodDefinition method in type.Methods)
                     {
@@ -61,26 +57,15 @@ namespace ContraCrack.Transformers
                             && method.Parameters[2].ParameterType.FullName.Contains("String")
                             && method.Parameters[3].ParameterType.FullName.Contains("Int32"))
                         {
-                            DialogResult tz = Interface.GetYesNoDialog("Method \"" + type.FullName + '.' + method.Name + "\" has met the search criteria. Crack it?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" has met the search criteria. Crack it?", type.FullName, '.', method.Name), "Ay Papi!");
                             switch (tz)
                             {
                                 case DialogResult.Yes:
                                     {
-                                        Logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
-                                        ILProcessor worker;
-                                        try
-                                        {
-                                            worker = method.Body.GetILProcessor();
-                                        }
-                                        catch
-                                        {
-                                            Logger.Log(Constants.MSILErrorMessage);
-                                            HasIssue = true;
-                                            return;
-                                        }
+                                        Logger.Log(string.Format("Modifying method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
                                         if (method.Body.Instructions[0].Operand.ToString() != "authentication.bottingnation.com")
                                         {
-                                            Logger.Log("Couldn't find auth string in method \"" + type.FullName + '.' + method.Name + "\"");
+                                            Logger.Log(string.Format("Couldn't find auth string in method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
                                             //this will only work on assemblies without string obfuscation :( will add manual override later
                                             continue;
                                         }
@@ -97,19 +82,15 @@ namespace ContraCrack.Transformers
                                         if (returnVal == "")
                                         {
                                             //Couldn't find return val, just skip this method
-                                            Logger.Log("Couldn't find instruction pattern in method \"" + type.FullName + '.' + method.Name + "\"");
+                                            Logger.Log(string.Format("Couldn't find instruction pattern in method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
                                             continue;
                                         }
                                         //We found the pattern and have the return value, now lets wipe everything and ret it
-                                        for (int i = 0; i < method.Body.Instructions.Count - 2; i++)
-                                        {
-                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Nop));
-                                        }
-                                        int count = method.Body.Instructions.Count;
+                                        method.Body.Instructions.Clear();
                                         method.Body.ExceptionHandlers.Clear();
                                         method.Body.Variables.Clear();
-                                        worker.Replace(method.Body.Instructions[count - 2], worker.Create(OpCodes.Ldstr, returnVal));//Manual: A7u-_i4-#~=w2_O5$42-_&3_0
-                                        worker.Replace(method.Body.Instructions[count - 1], worker.Create(OpCodes.Ret));
+                                        method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ldstr, returnVal));
+                                        method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ret));
                                     }
                                     break;
                             }

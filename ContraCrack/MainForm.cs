@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using ContraCrack.Util;
-using Mono.Cecil;
 
 namespace ContraCrack
 {
@@ -114,30 +108,30 @@ namespace ContraCrack
                 trans.HasIssue = false;
                 if (trans.HasIssue)
                 {
-                    _mainLogger.Log("Transformer has a problem, aborting!");
+                    trans.Logger.Log("Transformer has a problem, aborting!");
                     return;
                 }
-                _mainLogger.Log("Loading Assembly from " + trans.OriginalLocation);
+                trans.Logger.Log("Loading Assembly from " + trans.OriginalLocation);
                 trans.Load();
                 if (trans.HasIssue)
                 {
-                    _mainLogger.Log("Transformer has a problem, aborting!");
+                    trans.Logger.Log("Transformer has a problem, aborting!");
                     return;
                 }
-                _mainLogger.Log("Running Transformer...");
+                trans.Logger.Log("Transformer Started.");
                 trans.Transform();
                 //This needs to be fixed to distinguish if workingassembly is different than original. moduledefinition.image maybe?
                 if (trans.HasIssue)
                 {
                     if (trans.HasIssue)
                     {
-                        _mainLogger.Log("Transformer has a problem, aborting!");
+                        trans.Logger.Log("Transformer has a problem, aborting!");
                         return;
                     }
-                    _mainLogger.Log("Transformer made no changes! Aborting save!");
+                    trans.Logger.Log("Transformer made no changes! Aborting save!");
                     return;
                 }
-                _mainLogger.Log("Saving Assembly to " + trans.NewLocation);
+                trans.Logger.Log("Saving new assembly to " + trans.NewLocation);
                 trans.Save();
                 _mainLogger.Log("Operation Completed!");
 

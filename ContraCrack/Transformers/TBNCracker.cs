@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using ContraCrack.Util;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace ContraCrack.Transformers
@@ -58,14 +54,15 @@ namespace ContraCrack.Transformers
                     if (method.Name == "MyApplication_Startup")
                     {
                         DialogResult tz =
-                            Interface.GetYesNoDialog(
-                                "Method \"" + type.FullName + '.' + method.Name +
-                                "\" contains startup code. Would you like to wipe it?", "Ay Papi!");
+                            Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" contains startup code. Would you like to wipe it?", type.FullName, '.', method.Name), "Ay Papi!");
                         switch (tz)
                         {
                             case DialogResult.Yes:
                                 Logger.Log("Removing startup code");
-                                method.Body.Instructions[0].OpCode = OpCodes.Ret;
+                                method.Body.Instructions.Clear();
+                                method.Body.ExceptionHandlers.Clear();
+                                method.Body.Variables.Clear();
+                                method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ret));
                                 break;
                         }
                     }
@@ -88,34 +85,23 @@ namespace ContraCrack.Transformers
                             && method.Body.Instructions[4].OpCode == OpCodes.Callvirt
                             && method.Body.Instructions[5].OpCode == OpCodes.Ret)
                         {
-                            DialogResult tz =
-                                Interface.GetYesNoDialog(
-                                    "Method \"" + type.FullName + '.' + method.Name +
-                                    "\" has met the search criteria.\r\n Crack it's Owner's form load?", "Ay Papi!");
+                            DialogResult tz = Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" has met the search criteria.\r\n Crack it's Owner's form load?", type.FullName, '.', method.Name), "Ay Papi!");
                             switch (tz)
                             {
                                 case DialogResult.Yes:
                                     {
-                                        MethodDefinition construct =
-                                            type.Methods.Where(methodt => methodt.Name.Contains("ctor")).FirstOrDefault();
-                                        MethodReference formload = (from t in construct.Body.Instructions
-                                                                    where t.OpCode == OpCodes.Ldvirtftn
-                                                                    select (MethodReference) t.Operand).FirstOrDefault();
+                                        MethodDefinition construct = type.Methods.Where(methodt => methodt.Name.Contains("ctor")).FirstOrDefault();
+                                        MethodReference formload = (from t in construct.Body.Instructions where t.OpCode == OpCodes.Ldvirtftn select (MethodReference) t.Operand).FirstOrDefault();
                                         if (formload != null)
                                         {
-                                            Logger.Log("Injecting method contents of  \"" + type.FullName + '.' +
-                                                       method.Name + "\" into  \"" + type.FullName + '.' + formload.Name +
-                                                       "\"");
-                                            MethodDefinition formloadDef =
-                                                type.Methods.Where(methodt => methodt.Name == formload.Name).
-                                                    FirstOrDefault();
+                                            Logger.Log(string.Format("Injecting method contents of  \"{0}{1}{2}\" into  \"{3}{4}{5}\"", type.FullName, '.', method.Name, type.FullName, '.', formload.Name));
+                                            MethodDefinition formloadDef = type.Methods.Where(methodt => methodt.Name == formload.Name).FirstOrDefault();
                                             formloadDef.Body.Instructions.Clear();
                                             formloadDef.AppendMethod(method);
                                         }
                                         else
                                         {
-                                            Logger.Log(
-                                                "Found buttonClick pattern but could not find form_load in form constructor.");
+                                            Logger.Log("Found buttonClick pattern but could not find form_load in form constructor.");
                                         }
                                     }
                                     break;
@@ -136,36 +122,19 @@ namespace ContraCrack.Transformers
                         && method.Body.Variables.Count >= 1
                         && method.Body.Variables[0].VariableType.FullName.Contains("ComponentResourceManager"))
                     {
-                        DialogResult tz =
-                            Interface.GetYesNoDialog(
-                                "Method \"" + type.FullName + '.' + method.Name +
-                                "\" has met the search criteria. Patch Form Initializer?", "Ay Papi!");
+                        DialogResult tz = Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" has met the search criteria. Patch Form Initializer?", type.FullName, '.', method.Name), "Ay Papi!");
                         switch (tz)
                         {
                             case DialogResult.Yes:
                                 {
-                                    Logger.Log("Modifying method \"" + type.FullName + '.' + method.Name + "\"");
-                                    ILProcessor worker;
-                                    try
-                                    {
-                                        worker = method.Body.GetILProcessor();
-                                    }
-                                    catch
-                                    {
-                                        Logger.Log(Constants.MSILErrorMessage);
-                                        HasIssue = true;
-                                        return;
-                                    }
+                                    Logger.Log(string.Format("Modifying method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
                                     for (int i = 0; i < method.Body.Instructions.Count; i++)
                                     {
-                                        if (method.Body.Instructions.Count <= (i + 1)) break;
-                                        //Enable FUCKING EVERYTHING!!!
                                         if (method.Body.Instructions[i].OpCode == OpCodes.Ldc_I4_0
                                             && method.Body.Instructions[i + 1].OpCode == OpCodes.Callvirt
-                                            &&
-                                            method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
+                                            && method.Body.Instructions[i + 1].Operand.ToString().Contains("set_Enabled"))
                                         {
-                                            worker.Replace(method.Body.Instructions[i], worker.Create(OpCodes.Ldc_I4_1));
+                                            method.Body.Instructions[i] = method.Body.GetILProcessor().Create(OpCodes.Ldc_I4_1);
                                         }
                                     }
                                 }
