@@ -51,11 +51,9 @@ namespace ContraCrack.Transformers
         }
         public void Transform()
         {
-            foreach (TypeDefinition type in
-                WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
+            foreach (TypeDefinition type in WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
-                    foreach (MethodDefinition method in
-                        type.Methods.Where(method => method.HasBody))
+                    foreach (MethodDefinition method in type.Methods.Where(method => method.HasBody))
                     {
                         foreach (Instruction t in method.Body.Instructions)
                         {

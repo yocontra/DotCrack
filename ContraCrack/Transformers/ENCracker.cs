@@ -46,10 +46,10 @@ namespace ContraCrack.Transformers
             foreach (TypeDefinition type in
                 WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
-                    foreach (MethodDefinition method in type.Methods)
+                foreach (MethodDefinition method in type.Methods.Where(method => method.HasBody))
                     {
 
-                        if (method.HasBody && !method.IsAbstract
+                        if (!method.IsAbstract
                             && !method.IsConstructor 
                             && method.ReturnType.FullName.Contains("Boolean") 
                             && method.Parameters.Count == 2 

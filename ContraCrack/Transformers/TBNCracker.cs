@@ -46,15 +46,14 @@ namespace ContraCrack.Transformers
             foreach (TypeDefinition type in
                 WorkingAssembly.MainModule.Types.Where(type => type.Name != "<Module>"))
             {
-                foreach (MethodDefinition method in type.Methods)
+                foreach (MethodDefinition method in type.Methods.Where(method => method.HasBody))
                 {
                     #region remove MyApplication_Startup
-
-                    //TODO: This needs a pattern
-                    if (method.Name == "MyApplication_Startup")
+                    if (method.Parameters.Count == 2
+                        && method.Parameters[0].ParameterType.FullName.Contains("Object")
+                        && method.Parameters[1].ParameterType.FullName.Contains("StartupEventArgs"))
                     {
-                        DialogResult tz =
-                            Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" contains startup code. Would you like to wipe it?", type.FullName, '.', method.Name), "Ay Papi!");
+                        DialogResult tz = Interface.GetYesNoDialog(string.Format("Method \"{0}{1}{2}\" contains startup code. Would you like to wipe it?", type.FullName, '.', method.Name), "Ay Papi!");
                         switch (tz)
                         {
                             case DialogResult.Yes:
@@ -66,11 +65,8 @@ namespace ContraCrack.Transformers
                                 break;
                         }
                     }
-
                     #endregion
-
                     #region patch authform_load
-
                     //this works but the auth form pops up briefly.
                     if (method.HasBody && !method.IsAbstract
                         && !method.IsConstructor
@@ -110,13 +106,9 @@ namespace ContraCrack.Transformers
                     }
 
                     #endregion
-
                     #region patch initializecomponent
-
                     //This enables everything on the form
-                    if (method.HasBody && !method.IsAbstract
-                        && !method.IsConstructor
-                        && method.IsPrivate
+                    if (!method.IsConstructor
                         && method.ReturnType.FullName.Contains("Void")
                         && method.Parameters.Count == 0
                         && method.Body.Variables.Count >= 1
