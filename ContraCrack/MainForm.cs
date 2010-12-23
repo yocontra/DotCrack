@@ -39,6 +39,8 @@ namespace ContraCrack
                                         };
             Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
         }
+
+        private int t = 0xcd;
         public void AddToCrackLog(string value)
         {
             if (!InvokeRequired)
@@ -67,7 +69,7 @@ namespace ContraCrack
         }
         private void CrackWorkerDoWork(object sender, DoWorkEventArgs e)
         {
-            //CheckForIllegalCrossThreadCalls = false;
+            CheckForIllegalCrossThreadCalls = false;
             if (Instance.fileSelectTextBox.Text == "")
             {
                 MessageBox.Show("Please select an assembly first!");
