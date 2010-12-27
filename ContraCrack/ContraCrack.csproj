@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Transformers\OpCodeCleaner.cs" />
     <Compile Include="Util\Constants.cs" />
     <Compile Include="Util\LogHandler.cs" />
     <Compile Include="Transformers\BNCracker.cs" />

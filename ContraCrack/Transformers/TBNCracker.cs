@@ -86,8 +86,8 @@ namespace ContraCrack.Transformers
                             {
                                 case DialogResult.Yes:
                                     {
-                                        MethodDefinition construct = type.Methods.Where(methodt => methodt.Name.Contains("ctor")).FirstOrDefault();
-                                        MethodReference formload = (from t in construct.Body.Instructions where t.OpCode == OpCodes.Ldvirtftn select (MethodReference) t.Operand).FirstOrDefault();
+                                        MethodDefinition construct = type.GetConstructors()[0];
+                                        MethodReference formload = (from t in construct.Body.Instructions where t.OpCode == OpCodes.Ldvirtftn select (MethodReference)t.Operand).FirstOrDefault();
                                         if (formload != null)
                                         {
                                             Logger.Log(string.Format("Injecting method contents of  \"{0}{1}{2}\" into  \"{3}{4}{5}\"", type.FullName, '.', method.Name, type.FullName, '.', formload.Name));

@@ -23,6 +23,7 @@ namespace ContraCrack.Transformers
             OriginalLocation = fileLoc;
             NewLocation = OriginalLocation.GetNewFileName();
         }
+        
         public void Load()
         {
             try

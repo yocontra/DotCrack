@@ -1,4 +1,6 @@
-﻿using Mono.Cecil;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace ContraCrack.Util
@@ -17,13 +19,29 @@ namespace ContraCrack.Util
             asm.Name.PublicKeyToken = new byte[0];
             asm.Name.IsSideBySideCompatible = true;
         }
+        public static int RemoveInvalidOpCodes(this MethodDefinition method)
+        {
+            List<Instruction> InstToRemove =
+                method.Body.Instructions.Where(t => t.OpCode == OpCodes.Invalid).ToList();
+            foreach (Instruction t in InstToRemove)
+            {
+                method.Body.GetILProcessor().Replace(t, method.Body.GetILProcessor().Create(OpCodes.Nop));
+            }
+            return InstToRemove.Count;
+        }
+        public static MethodDefinition[] GetConstructors(this TypeDefinition type)
+        {
+            return type.Methods.Where(methodt => methodt.IsConstructor).ToArray();
+        }
         public static MethodDefinition AppendMethod(this MethodDefinition inputMethod, MethodDefinition appendMethod)
         {
+
             int count = inputMethod.Body.Instructions.Count;
             if (count > 0)
             {
                 inputMethod.Body.GetILProcessor().Remove(inputMethod.Body.Instructions[count - 1]);
             }
+
             for (int x = 0; x < appendMethod.Body.Instructions.Count; x++)
             {
                 inputMethod.Body.GetILProcessor().Append(appendMethod.Body.Instructions[x]);

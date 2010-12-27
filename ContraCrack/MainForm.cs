@@ -40,7 +40,6 @@ namespace ContraCrack
             Instance.fileSelectTextBox.Text = (dialog.ShowDialog() == DialogResult.OK) ? dialog.FileName : "";
         }
 
-        private int t = 0xcd;
         public void AddToCrackLog(string value)
         {
             if (!InvokeRequired)
@@ -53,6 +52,7 @@ namespace ContraCrack
                 return;
             }
         }
+
         private void CrackButtonClick(object sender, EventArgs e)
         {
             Instance.taskComboBox.Enabled = false;
@@ -97,6 +97,10 @@ namespace ContraCrack
 
                     case "StringReplacer":
                         trans = new Transformers.StringReplacer(Instance.fileSelectTextBox.Text);
+                        break;
+
+                    case "OpCodeCleaner":
+                        trans = new Transformers.OpCodeCleaner(Instance.fileSelectTextBox.Text);
                         break;
 
                     default:
