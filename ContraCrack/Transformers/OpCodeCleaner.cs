@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ContraCrack.Util;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 
 namespace ContraCrack.Transformers
 {
@@ -54,7 +51,7 @@ namespace ContraCrack.Transformers
                 }
                 if (replaced > 0)
                 {
-                    Logger.Log("NOPed " + replaced + " OpCodes in " + type.Name);
+                    Logger.Log("NOPed " + replaced + " OpCodes in " + type.FullName);
                 }
             }
         }

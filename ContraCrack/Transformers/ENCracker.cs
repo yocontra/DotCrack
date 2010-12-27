@@ -64,9 +64,7 @@ namespace ContraCrack.Transformers
                                 case DialogResult.Yes:
                                     {
                                         Logger.Log(string.Format("Modifying method \"{0}{1}{2}\"", type.FullName, '.', method.Name));
-                                        //Wipe the method whilst avoiding method.body.instructions for obfuscation purposes
-                                        MethodDefinition choni = new MethodDefinition(method.Name, method.Attributes, method.ReturnType);
-                                        method.Body = choni.Body;
+                                        method.Clear();
                                         method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ldc_I4_1));
                                         method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ret));
                                     }

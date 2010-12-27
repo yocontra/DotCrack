@@ -58,9 +58,7 @@ namespace ContraCrack.Transformers
                         {
                             case DialogResult.Yes:
                                 Logger.Log("Removing startup code");
-                                method.Body.Instructions.Clear();
-                                method.Body.ExceptionHandlers.Clear();
-                                method.Body.Variables.Clear();
+                                method.Clear();
                                 method.Body.Instructions.Add(method.Body.GetILProcessor().Create(OpCodes.Ret));
                                 break;
                         }
