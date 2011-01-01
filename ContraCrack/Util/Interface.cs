@@ -17,5 +17,19 @@ namespace ContraCrack.Util
         {
             return Microsoft.VisualBasic.Interaction.InputBox(prompt, title, defaultText);
         }
+        public static void Vibrate(this Form inputForm)
+        {
+            //This still shows up funny, I need to fix this.
+            for (int i = 20; i > -1; i =- 2)
+            {
+                for (int j = 1; j < 21; j++)
+                {
+                    inputForm.Top = inputForm.Top + i;
+                    inputForm.Left = inputForm.Left + i;
+                    inputForm.Top = inputForm.Top - i;
+                    inputForm.Left = inputForm.Left - i;
+                }
+            }
+        }
     }
 }

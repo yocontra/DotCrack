@@ -139,6 +139,7 @@ namespace ContraCrack
                 }
                 trans.Logger.Log("Saving new assembly to " + trans.NewLocation);
                 trans.Save();
+                //MainForm.Instance.Vibrate();
                 _mainLogger.Log("Operation Completed!");
 
                 #endregion
