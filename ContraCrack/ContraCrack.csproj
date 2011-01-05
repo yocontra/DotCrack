@@ -38,6 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -69,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Transformers\MPRESSUnpacker.cs" />
     <Compile Include="Transformers\OpCodeCleaner.cs" />
     <Compile Include="Util\Constants.cs" />
     <Compile Include="Util\LogHandler.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Util\Cecil.cs" />
     <Compile Include="Util\Interface.cs" />
     <Compile Include="Util\Misc.cs" />
+    <Compile Include="Util\MPRESS.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

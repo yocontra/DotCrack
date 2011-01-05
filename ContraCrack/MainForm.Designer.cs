@@ -97,7 +97,8 @@
             "BNCracker",
             "RSCBTagger",
             "StringReplacer",
-            "OpCodeCleaner"});
+            "OpCodeCleaner",
+            "MPRESSUnpacker"});
             this.taskComboBox.Location = new System.Drawing.Point(113, 41);
             this.taskComboBox.Name = "taskComboBox";
             this.taskComboBox.Size = new System.Drawing.Size(143, 21);

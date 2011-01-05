@@ -102,6 +102,9 @@ namespace ContraCrack
                     case "OpCodeCleaner":
                         trans = new Transformers.OpCodeCleaner(Instance.fileSelectTextBox.Text);
                         break;
+                    case "MPRESSUnpacker":
+                        trans = new Transformers.MPRESSUnpacker(Instance.fileSelectTextBox.Text);
+                        break;
 
                     default:
                         MessageBox.Show("No task selected, please pick one!");
