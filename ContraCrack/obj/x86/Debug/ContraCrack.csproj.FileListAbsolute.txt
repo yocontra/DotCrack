@@ -48,3 +48,6 @@ F:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.read.1.tlog
 F:\ContraCrack\ContraCrack\obj\x86\Debug\GenerateResource.write.1.tlog
 F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
 F:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb
+E:\ContraCrack\ContraCrack\bin\Debug\ContraCrack.exe.config
+E:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.exe
+E:\ContraCrack\ContraCrack\obj\x86\Debug\ContraCrack.pdb

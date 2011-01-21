@@ -88,7 +88,7 @@ namespace ContraCrack
                         break;
 
                     case "RSCBTagger":
-                        trans = new Transformers.RSCBTagger(Instance.fileSelectTextBox.Text);
+                        trans = new Transformers.RECTagger(Instance.fileSelectTextBox.Text);
                         break;
 
                     case "TBNCracker":

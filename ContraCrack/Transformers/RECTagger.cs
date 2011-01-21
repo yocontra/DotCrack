@@ -7,7 +7,7 @@ using ContraCrack.Util;
 
 namespace ContraCrack.Transformers
 {
-    class RSCBTagger : ITransformer
+    class RECTagger : ITransformer
     {
         public LogHandler Logger { get; set; }
         public string OriginalLocation { get; set; }
@@ -16,7 +16,7 @@ namespace ContraCrack.Transformers
         public AssemblyDefinition WorkingAssembly { get; set; }
         public bool HasIssue { get; set; }
 
-        public RSCBTagger(string fileLoc)
+        public RECTagger(string fileLoc)
         {
             Logger = new LogHandler(GetType().Name);
             Logger.Log(Logger.Identifier + " Initialized.");
@@ -52,7 +52,7 @@ namespace ContraCrack.Transformers
                     {
                         Logger.Log(string.Format("Injecting code into entrypoint \"{0}{1}{2}\"", type.FullName, '.', method.Name));
                         MethodReference showMessageBox = WorkingAssembly.MainModule.Import(typeof(MessageBox).GetMethod("Show", new[] { typeof(string) }));
-                        Instruction insertSentence = method.Body.GetILProcessor().Create(OpCodes.Ldstr, "Cracked by RSCBUnlocked.net");
+                        Instruction insertSentence = method.Body.GetILProcessor().Create(OpCodes.Ldstr, "Cracked by [REC]Contra.\nCome join us at RECoders.org for more!");
                         Instruction callShowMessage = method.Body.GetILProcessor().Create(OpCodes.Call, showMessageBox);
                         method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], insertSentence);
                         method.Body.GetILProcessor().InsertAfter(insertSentence, callShowMessage);
